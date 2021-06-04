@@ -92,7 +92,7 @@
 	<script src="assets/js/fabric.min.js"></script>
 	<script>
 		
-		//variaáveis
+		//variáveis
 		const STEP = 1;
 
         var Direction = {
@@ -103,9 +103,7 @@
         };
 		
 		//Modal Form
-		var FormChair = new bootstrap.Modal(document.getElementById('FormChair'), {
-		  keyboard: false
-		});
+		var FormChair = new bootstrap.Modal(document.getElementById('FormChair'), { keyboard: false });
 		
 		//criando o canvas
 		var canvas = this.__canvas = new fabric.Canvas('viewport', {
@@ -155,26 +153,9 @@
 
 		// Deleta a mesa
 		function deleteObject(eventData, transform) {
-			//if( === "activeSelection")
-				
-				
 			var target = transform.target;
 			var canvas = target.canvas;
-			var type = canvas.getActiveObject().get('type');
-			if(type == "circle"){
-				canvas.remove(target);
-				canvas.requestRenderAll();
-			}
-			else if(type == "activeSelection")
-			{
-				if(confirm("Deseja remover os objetos selecionados?")){
-					canvas.getActiveObjects().forEach((obj) => {
-					  canvas.remove(obj);
-					});
-					canvas.discardActiveObject();
-					canvas.requestRenderAll();
-				}
-			}
+			deleteChair(canvas);
 		}
 
 		/* Posiciona o botão de subir planta no centro do canva */
@@ -206,6 +187,7 @@
 		positionBtn(center);
 		/* Posiciona o botão de subir planta no centro do canva */
 
+		/*INICIO ADIÇÃO DE EVENTOS AO CANVAS*/
 		// Diminui a opacidade da mesa ao passar mouse
 		canvas.on('mouse:over', function (e) {
 			if (!e || !e.target) return;
@@ -224,9 +206,9 @@
 
 		// Adiciona nova mesa
 		canvas.on('mouse:dblclick', function (options) {
-		
-			if (options && options.target) return;
+			log('mouse:dblclick', options);
 
+			if (options && options.target) return;
 
 			var circle = new fabric.Circle({
 				radius: 10,
@@ -240,13 +222,28 @@
 			canvas.add(circle);
 			canvas.setActiveObject(circle);
 			canvas.renderAll();
+
 		});
 
 		canvas.on({
 			'object:moving': onChange,
 			'object:scaling': onChange,
+			'object:moved': function (opt) { log('object:moved', opt) },
+			'object:scaled': function (opt) { log('object:scaled', opt) },
 		});
 		
+		observeObj('mouseout');
+		addSeparator('log');
+		function observeObj(eventName) {
+			canvas.getObjects().forEach(function (o) {
+				o.on(eventName, function (opt) {
+					log(eventName, opt, o.fill)
+				});
+			});
+		}
+		/*FIM ADIÇÃO DE EVENTOS AO CANVAS*/
+		
+		/*INICIO EVENTOS*/
 		//Adiciona o evento double click em todos os elementos do canvas
 		//Abre o formulário para salvar a cadeira
 		window.fabric.util.addListener(canvas.upperCanvasEl, 'dblclick', function (event, self) {
@@ -262,24 +259,24 @@
 			}
 		});
 		
-		//Mover objetos selecionados pelo teclado
+		//criando evento para mover objetos selecionados pelo teclado
 		window.fabric.util.addListener(document.body, 'keydown', function (options) {
             if (options.repeat)  return;
 			
             var key = options.which || options.keyCode; // key detection
             if (key === 37) { // handle Left key
-                moveSelected(Direction.LEFT);
+                onMoveSelected(Direction.LEFT);
             } else if (key === 38) { // handle Up key
-                moveSelected(Direction.UP);
+                onMoveSelected(Direction.UP);
             } else if (key === 39) { // handle Right key
-                moveSelected(Direction.RIGHT);
+                onMoveSelected(Direction.RIGHT);
             } else if (key === 40) { // handle Down key
-                moveSelected(Direction.DOWN);
+                onMoveSelected(Direction.DOWN);
             }
         });
 		
-		
-		function moveSelected(direction) {
+		//Método utilizado para mover os objetos
+		function onMoveSelected(direction) {
 
             var activeObject = canvas.getActiveObject();
 
@@ -295,6 +292,8 @@
 					}
 					activeObject.setCoords();
 					canvas.renderAll();
+					
+					editChair(type == "activeSelection");
 				}
             }
         }
@@ -308,6 +307,129 @@
 				options.target.set('fill', options.target.intersectsWithObject(obj) ? 'red' : '#78BE78');
 			});
 		}
+
+		// Eventos de log
+		var log2 = document.getElementById('log');
+		var clearBtn = document.getElementById('clearBtn');
+
+		function log(message, opt) {
+			if ((message === 'mouse:move' || message === 'mousemove' || message === 'mouse:move:before' || message === 'mousemove:before') || (message === 'dragover')) {
+				return;
+			}
+
+			var el = document.createElement('p');
+			el.appendChild(document.createTextNode(message + ' ' + JSON.stringify(opt)));
+			log2.insertBefore(el, clearBtn.nextSibling);
+			var children = log2.children;
+
+			while (children[100]) {
+				var child = children[100];
+				log2.removeChild(child);
+			}
+		}
+		/*FIM EVENTOS*/
+
+		/*Métodos de log*/
+		function showLogs() {
+			$("#log").fadeToggle();
+		};
+
+		function clearLog() {
+			var logs = log2.getElementsByTagName('p');
+
+			for (var i = logs.length; i--;) {
+				logs[i].parentNode.removeChild(logs[i]);
+			}
+		}
+
+		function addSeparator(id) {
+			document.getElementById(id).appendChild(document.createElement('br'));
+		}
+
+		//INICIO FUNÇÕES CLIENT / SERVER
+		//Criar / Editar Cadeira através do formulário
+		function saveChair(){
+			//implementar form para salvar dados no banco
+			//ao salvar subistituir a função "Math.random()" pelo id inserido no momento do post 
+			//se o retorno do formulário for sucesso
+			if(true){
+				canvas.getActiveObject().set('Id', Math.random());
+				canvas.getActiveObject().set('Descricao', $("#Descricao").val());
+			}
+			//se não conseguir salvar e o objeto ainda não foi salvo no banco, remover da tela
+			else
+			{
+				if(canvas.getActiveObject().get('Id') == 0){
+					canvas.remove(canvas.getActiveObject());
+				}
+			}
+			FormChair.hide();
+		}
+
+		//Função criada para caso o usuário não salve a cadeira no servidor
+		function cancelSaveChair(){
+			if(canvas.getActiveObject().get('Id') == 0){
+				canvas.remove(canvas.getActiveObject());
+			}
+			FormChair.hide();
+		}
+
+		//Criar / Editar Cadeira(s) ao movimentar
+		function editChair(multiple){
+			let objects = [];
+			if(multiple)
+			{
+				canvas.getActiveObjects().forEach((obj) => {
+					objects.pop({ "Id": obj.get('Id'), "X": obj.get('left'), "Y": obj.get('top') }); 
+				});
+			}
+			else
+			{
+				var activeObject = canvas.getActiveObject();
+				objects.pop({ "Id": activeObject.get('Id'), "X": activeObject.get('left'), "Y": activeObject.get('top') }); 
+			}
+			console.log(objects);
+			//fazer uma requisição post das alterações para atualizar a(s) coordenada(s)
+		}
+
+		//Excluir Cadeira(s) 
+		function deleteChair(canvas){
+			//implementar form para salvar dados no banco
+
+			var type = canvas.getActiveObject().get('type');
+			if(type == "circle"){
+				let id = canvas.getActiveObject().get("Id")
+				console.log(id);
+
+				//fazer uma requisição post se o resultado for verdadeiro remove os itens
+				if(true){
+					canvas.remove(canvas.getActiveObject());
+					canvas.requestRenderAll();
+				}
+			}
+
+			else if(type == "activeSelection")
+			{
+				if(confirm("Deseja remover os objetos selecionados?")){
+					let ids = [];
+					canvas.getActiveObjects().forEach((obj) => {
+						ids.push(obj.get("Id"));
+					});
+					console.log(ids);
+					
+					//fazer uma requisição post se o resultado for verdadeiro remove os itens
+					if(true){
+						canvas.getActiveObjects().forEach((obj) => {
+							canvas.remove(obj);
+						});
+						canvas.discardActiveObject();
+						canvas.requestRenderAll();
+					}
+				}
+			}
+		}
+		//FIM FUNÇÕES CLIENT / SERVER
+
 		
 		let canvasImage;
 		// Evento de upar imagem da planta
@@ -349,7 +471,6 @@
 		}
 
 		$(window).resize(resizeCanvas);
-		// resizeCanvas();
 
 		// Baixa a imagem do canvas
 		function downloadImage() {
@@ -363,91 +484,6 @@
 			link.click();
 		}
 
-
-		// Eventos de log
-		var log2 = document.getElementById('log');
-		var clearBtn = document.getElementById('clearBtn');
-
-		function log(message, opt) {
-			if ((message === 'mouse:move' || message === 'mousemove' || message === 'mouse:move:before' || message ===
-					'mousemove:before') || (message === 'dragover')) {
-				return;
-			}
-
-			var el = document.createElement('p');
-			el.appendChild(document.createTextNode(message + ' ' + JSON.stringify(opt)));
-			log2.insertBefore(el, clearBtn.nextSibling);
-			var children = log2.children;
-
-			while (children[100]) {
-				var child = children[100];
-				log2.removeChild(child);
-			}
-		}
-
-		function showLogs() {
-			$("#log").fadeToggle();
-		};
-
-		function clearLog() {
-			var logs = log2.getElementsByTagName('p');
-
-			for (var i = logs.length; i--;) {
-				logs[i].parentNode.removeChild(logs[i]);
-			}
-		}
-
-		function addSeparator(id) {
-			document.getElementById(id).appendChild(document.createElement('br'));
-		}
-
-		function observe(eventName) {
-			canvas.on(eventName, function (opt) {
-				log(eventName, opt)
-			});
-		}
-
-		function observeObj(eventName) {
-			canvas.getObjects().forEach(function (o) {
-				o.on(eventName, function (opt) {
-					log(eventName, opt, o.fill)
-				});
-			});
-		}
-
-		observe('object:moved');
-		observe('object:scaled');
-		addSeparator('log');
-
-		observe('mouse:dblclick');
-		observeObj('mouseout');
-		addSeparator('log');
-		
-		
-		//FUNÇÕES ESPECÍFICAS DO FORMULÁRIO
-		function saveChair(){
-			//implementar form para salvar dados no banco
-			//ao salvar subistituir a função "Math.random()" pelo id inserido no momento do post 
-			canvas.getActiveObject().set('Id', Math.random());
-			canvas.getActiveObject().set('Descricao', $("#Descricao").val());
-			FormChair.hide();
-		}
-		
-		function cancelSaveChair(){
-			if(canvas.getActiveObject().get('Id') == 0){
-				canvas.remove(canvas.getActiveObject());
-			}
-			FormChair.hide();
-		}
-		
-		function deleteChair(){
-			canvas.getActiveObject().set('Id', Math.random());
-			canvas.getActiveObject().set('Nome', $("#Descricao").val());
-			FormChair.hide();
-		}
-
-		// TODO: blocar objeto se estiver sobre outro
-		// http://jsfiddle.net/gcollect/FD53A/
 	</script>
 </body>
 
