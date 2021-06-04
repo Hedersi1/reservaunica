@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Reserva Única</title>
+	<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+	<link href="assets/css/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<div class="admin">
+		<header class="admin__header">
+			<div class="dropdown-primary dropdown">
+				<a class="nav-link dropdown-toggle menu-action" href="#" id="userMenu" role="button"
+					data-bs-toggle="dropdown" aria-expanded="false"><img class="avatar img-responsive"
+						src="assets/img/avatar.png" alt="avatar"> Olá, Tássio!</a>
+				<ul class="dropdown-menu" aria-labelledby="userMenu">
+					<li>
+						<a class="dropdown-item" href="#">Meus Dados</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="#">Sair</a>
+					</li>
+				</ul>
+			</div>
+			<a href="/" class="mr-5">
+				<h2>Reserva<b>Canto</b></h2>
+			</a>
+			<button class="btn btn-link menu-action mr-3" title="Agendar reserva">
+				<i class="far fa-bell has-activity"></i>
+			</button>
+		</header>
+		<main class="admin__main">
+			<div class="container">
+				<div class="painel">
+					<input type="file" id="bg_image"> <label for="bg_image" id="bg_image_label" class="btn-1"><span
+							class="mx-3"><i class="fas fa-image pr-2"></i>Selecionar Planta</span></label>
+					<div class="content w-100">
+						<canvas id="viewport"></canvas>
+					</div>
+					<button class="btn mt-1" onclick="showLogs()">Logs</button>
+				</div>
+				<div id="log" class="log-painel mt-5" style="display: none;">
+					<button onclick="clearLog()" id="clearBtn" class="btn btn-secondary btn-action"><i
+							class="fas fa-trash"></i> Limpar</button>
+				</div>
+			</div>
+		</main>
+	</div>
+	
+	<!-- Modal -->
+	<div class="modal fade" id="FormChair" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h5 class="modal-title" id="TitleForm">Salvar Assento</h5>
+		  </div>
+		  <div class="modal-body">
+			<form >
+				<input type="hidden" id="CircleId">
+				<div class="mb-12">
+				  <label for="Descricao" class="form-label">Descrição do Assento</label>
+				  <input type="text" class="form-control" id="Descricao" required="Obrigatório" placeholder="Cadeira 01">
+				</div>
+				<div class="mb-12">
+				  <label for="CoordenadaX" class="form-label">Coordenada X</label>
+				  <input type="text"  class="form-control" id="CoordenadaX" readonly="readonly" ></input>
+				</div>
+				<div class="mb-12">
+				  <label for="CoordenadaX" class="form-label">Coordenada Y</label>
+				  <input type="text"  class="form-control" id="CoordenadaY" readonly="readonly"  ></input>
+				</div>				
+			</form>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" onclick="cancelSaveChair()" class="btn btn-secondary" >Close</button>
+			<button type="button" onclick="saveChair()" class="btn btn-primary">Save changes</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="assets/bootstrap/js/bootstrap.min.js">
+	</script>
+	<script src="https://kit.fontawesome.com/4a72eb39d8.js" crossorigin="anonymous"></script>
+	<script src="assets/js/fabric.min.js"></script>
+	<script>
+		
+		//variaáveis
+		const STEP = 1;
+
+        var Direction = {
+            LEFT: 0,
+            UP: 1,
+            RIGHT: 2,
+            DOWN: 3
+        };
+		
+		//Modal Form
+		var FormChair = new bootstrap.Modal(document.getElementById('FormChair'), {
+		  keyboard: false
+		});
+		
+		//criando o canvas
+		var canvas = this.__canvas = new fabric.Canvas('viewport', {
+			height: 539,
+			width: 958
+		});
+
+		fabric.Object.prototype.setControlsVisibility({
+			mtr: false,
+			mt: false, // middle top 
+			mb: false, // midle bottom
+			ml: false, // middle left
+			mr: false, // middle right
+			tl: true, //top left
+			tr: true, //top right
+			bl: true, //bottom left
+			br: true //bottom right
+		});
+		fabric.Object.prototype.hasRotatingPoint = false;
+
+		var deleteIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
+
+		var deleteImg = document.createElement('img');
+		deleteImg.src = deleteIcon;
+
+		function renderIcon(icon) {
+			return function renderIcon(ctx, left, top, styleOverride, fabricObject) {
+				var size = this.cornerSize;
+				ctx.save();
+				ctx.translate(left, top);
+				ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+				ctx.drawImage(icon, -size / 2, -size / 2, size, size);
+				ctx.restore();
+			}
+		}
+
+		fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+			x: 0.5,
+			y: -0.5,
+			offsetY: -16,
+			offsetX: 16,
+			cursorStyle: 'pointer',
+			mouseUpHandler: deleteObject,
+			render: renderIcon(deleteImg),
+			cornerSize: 24
+		});
+
+		// Deleta a mesa
+		function deleteObject(eventData, transform) {
+			//if( === "activeSelection")
+				
+				
+			var target = transform.target;
+			var canvas = target.canvas;
+			var type = canvas.getActiveObject().get('type');
+			if(type == "circle"){
+				canvas.remove(target);
+				canvas.requestRenderAll();
+			}
+			else if(type == "activeSelection")
+			{
+				if(confirm("Deseja remover os objetos selecionados?")){
+					canvas.getActiveObjects().forEach((obj) => {
+					  canvas.remove(obj);
+					});
+					canvas.discardActiveObject();
+					canvas.requestRenderAll();
+				}
+			}
+		}
+
+		/* Posiciona o botão de subir planta no centro do canva */
+		fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
+			return {
+				left: object.left + this._offset.left,
+				top: object.top + this._offset.top
+			};
+		}
+
+		var center = new fabric.Rect({
+			left: 0,
+			top: 0,
+			width: 1,
+			height: 1,
+			fill: 'transparent',
+		});
+		canvas.add(center)
+		canvas.centerObject(center);
+
+		var btn = document.getElementById('bg_image_label');
+
+		function positionBtn(obj) {
+			var absCoords = canvas.getAbsoluteCoords(obj);
+			btn.style.left = '0px';
+			btn.style.top = '250px';
+		}
+
+		positionBtn(center);
+		/* Posiciona o botão de subir planta no centro do canva */
+
+		// Diminui a opacidade da mesa ao passar mouse
+		canvas.on('mouse:over', function (e) {
+			if (!e || !e.target) return;
+
+			e.target.set('opacity', 0.5);
+			canvas.renderAll();
+		});
+
+		// Volta a opacidade da mesa ao sair
+		canvas.on('mouse:out', function (e) {
+			if (!e || !e.target) return;
+			
+			e.target.set('opacity', 1);
+			canvas.renderAll();
+		});
+
+		// Adiciona nova mesa
+		canvas.on('mouse:dblclick', function (options) {
+		
+			if (options && options.target) return;
+
+
+			var circle = new fabric.Circle({
+				radius: 10,
+				left: options.absolutePointer.x - 10,
+				top: options.absolutePointer.y - 10,
+				fill: '#78BE78',
+				Id : 0,
+				Descricao : ''
+			});
+			
+			canvas.add(circle);
+			canvas.setActiveObject(circle);
+			canvas.renderAll();
+		});
+
+		canvas.on({
+			'object:moving': onChange,
+			'object:scaling': onChange,
+		});
+		
+		//Adiciona o evento double click em todos os elementos do canvas
+		//Abre o formulário para salvar a cadeira
+		window.fabric.util.addListener(canvas.upperCanvasEl, 'dblclick', function (event, self) {
+			if((canvas.getActiveObject().get("type") == "circle")){
+				var circle = canvas.getActiveObject();
+				$("#TitleForm").html((circle.get("Id") == 0)? "Criar Novo Assento" : "Editar Assento");
+				$("#CoordenadaX").val(circle.get("left"));
+				$("#CoordenadaY").val(circle.get("top"));
+				$("#CircleId").val(circle.get("Id"));
+				$("#Descricao").val(circle.get("Descricao"));
+				
+				FormChair.show();
+			}
+		});
+		
+		//Mover objetos selecionados pelo teclado
+		window.fabric.util.addListener(document.body, 'keydown', function (options) {
+            if (options.repeat)  return;
+			
+            var key = options.which || options.keyCode; // key detection
+            if (key === 37) { // handle Left key
+                moveSelected(Direction.LEFT);
+            } else if (key === 38) { // handle Up key
+                moveSelected(Direction.UP);
+            } else if (key === 39) { // handle Right key
+                moveSelected(Direction.RIGHT);
+            } else if (key === 40) { // handle Down key
+                moveSelected(Direction.DOWN);
+            }
+        });
+		
+		
+		function moveSelected(direction) {
+
+            var activeObject = canvas.getActiveObject();
+
+            if (activeObject != null) {
+				var type = activeObject.get("type");
+				
+				if(type == "circle" || type == "activeSelection"){
+					switch (direction) {
+						case Direction.LEFT: activeObject.set("left", activeObject.get("left") - STEP);break;
+						case Direction.UP: activeObject.set("top", activeObject.get("top") - STEP); break;
+						case Direction.RIGHT: activeObject.set("left", activeObject.get("left") + STEP); break;
+						case Direction.DOWN: activeObject.set("top", activeObject.get("top") + STEP); break;
+					}
+					activeObject.setCoords();
+					canvas.renderAll();
+				}
+            }
+        }
+
+		// Deixa vermelha a mesma que estiver sobrepondo, indicando que não deve colocar aí.
+		function onChange(options) {
+			options.target.setCoords();
+			canvas.forEachObject(function (obj) {
+				if (obj === options.target) return;
+				
+				options.target.set('fill', options.target.intersectsWithObject(obj) ? 'red' : '#78BE78');
+			});
+		}
+		
+		let canvasImage;
+		// Evento de upar imagem da planta
+		document.getElementById('bg_image').addEventListener('change', function (e) {
+			canvas.setBackgroundColor('', canvas.renderAll.bind(canvas));
+			canvas.setBackgroundImage(0, canvas.renderAll.bind(canvas));
+			var file = e.target.files[0];
+			var reader = new FileReader();
+
+			reader.onload = function (f) {
+				var data = f.target.result;
+				fabric.Image.fromURL(data, function (img) {
+					document.getElementById("bg_image_label").style.visibility = 'hidden';
+
+					canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+						scaleX: canvas.width / img.width,
+						scaleY: canvas.height / img.height
+					});
+				});
+			};
+			reader.readAsDataURL(file);
+		});
+
+		// TODO: redimensionar a imagem para um tamanho mínimo.
+		function resizeCanvas() {
+			const outerCanvasContainer = $('.content')[0];
+
+			const ratio = canvas.getWidth() / canvas.getHeight();
+			const containerWidth = outerCanvasContainer.clientWidth;
+			const containerHeight = outerCanvasContainer.clientHeight;
+
+			const scale = containerWidth / canvas.getWidth();
+			const zoom = canvas.getZoom() * scale;
+			canvas.setDimensions({
+				width: containerWidth,
+				height: containerWidth / ratio
+			});
+			canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
+		}
+
+		$(window).resize(resizeCanvas);
+		// resizeCanvas();
+
+		// Baixa a imagem do canvas
+		function downloadImage() {
+			var link = document.createElement('a');
+			link.innerHTML = 'Baixar Imagem';
+			link.addEventListener('click', function (ev) {
+				link.href = canvas.toDataURL();
+				link.download = "planta.png";
+			}, false);
+			document.body.appendChild(link);
+			link.click();
+		}
+
+
+		// Eventos de log
+		var log2 = document.getElementById('log');
+		var clearBtn = document.getElementById('clearBtn');
+
+		function log(message, opt) {
+			if ((message === 'mouse:move' || message === 'mousemove' || message === 'mouse:move:before' || message ===
+					'mousemove:before') || (message === 'dragover')) {
+				return;
+			}
+
+			var el = document.createElement('p');
+			el.appendChild(document.createTextNode(message + ' ' + JSON.stringify(opt)));
+			log2.insertBefore(el, clearBtn.nextSibling);
+			var children = log2.children;
+
+			while (children[100]) {
+				var child = children[100];
+				log2.removeChild(child);
+			}
+		}
+
+		function showLogs() {
+			$("#log").fadeToggle();
+		};
+
+		function clearLog() {
+			var logs = log2.getElementsByTagName('p');
+
+			for (var i = logs.length; i--;) {
+				logs[i].parentNode.removeChild(logs[i]);
+			}
+		}
+
+		function addSeparator(id) {
+			document.getElementById(id).appendChild(document.createElement('br'));
+		}
+
+		function observe(eventName) {
+			canvas.on(eventName, function (opt) {
+				log(eventName, opt)
+			});
+		}
+
+		function observeObj(eventName) {
+			canvas.getObjects().forEach(function (o) {
+				o.on(eventName, function (opt) {
+					log(eventName, opt, o.fill)
+				});
+			});
+		}
+
+		observe('object:moved');
+		observe('object:scaled');
+		addSeparator('log');
+
+		observe('mouse:dblclick');
+		observeObj('mouseout');
+		addSeparator('log');
+		
+		
+		//FUNÇÕES ESPECÍFICAS DO FORMULÁRIO
+		function saveChair(){
+			//implementar form para salvar dados no banco
+			//ao salvar subistituir a função "Math.random()" pelo id inserido no momento do post 
+			canvas.getActiveObject().set('Id', Math.random());
+			canvas.getActiveObject().set('Descricao', $("#Descricao").val());
+			FormChair.hide();
+		}
+		
+		function cancelSaveChair(){
+			if(canvas.getActiveObject().get('Id') == 0){
+				canvas.remove(canvas.getActiveObject());
+			}
+			FormChair.hide();
+		}
+		
+		function deleteChair(){
+			canvas.getActiveObject().set('Id', Math.random());
+			canvas.getActiveObject().set('Nome', $("#Descricao").val());
+			FormChair.hide();
+		}
+
+		// TODO: blocar objeto se estiver sobre outro
+		// http://jsfiddle.net/gcollect/FD53A/
+	</script>
+</body>
+
+</html>

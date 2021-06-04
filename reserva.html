@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Reserva Única</title>
+	<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+	<link href="assets/css/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<div class="admin">
+		<header class="admin__header">
+			<div class="dropdown-primary dropdown">
+				<a class="nav-link dropdown-toggle menu-action" href="#" id="userMenu" role="button"
+					data-bs-toggle="dropdown" aria-expanded="false"><img class="avatar img-responsive"
+						src="assets/img/avatar.png" alt="avatar"> Olá, Tássio!</a>
+				<ul class="dropdown-menu" aria-labelledby="userMenu">
+					<li>
+						<a class="dropdown-item" href="#">Meus Dados</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="#">Sair</a>
+					</li>
+				</ul>
+			</div>
+			<a href="/" class="mr-5">
+				<h2>Reserva<b>Canto</b></h2>
+			</a>
+			<button class="btn btn-link menu-action mr-3" title="Agendar reserva">
+				<i class="far fa-bell has-activity"></i>
+			</button>
+		</header>
+		<main class="admin__main">
+			<div class="painel">
+				<ul class="painel-subtitle mb-5">
+					<li class="avaible">Disponível</li>
+					<li class="selected">Sua reserva</li>
+					<li class="unavailable">Indisponível</li>
+				</ul>
+				<div class="content mt-5">
+					<canvas id="viewport"></canvas>
+				</div>
+			</div>
+		</main>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="assets/bootstrap/js/bootstrap.min.js">
+	</script>
+	<script src="https://kit.fontawesome.com/4a72eb39d8.js" crossorigin="anonymous"></script>
+	<script src="assets/js/fabric.min.js"></script>
+	<script>
+		var canvas = this.__canvas = new fabric.Canvas('viewport', {
+			height: 400,
+			width: 1000
+		});
+		fabric.Object.prototype.transparentCorners = false;
+
+		canvas.on({
+			'object:moving': onChange,
+			'object:scaling': onChange,
+			'object:rotating': onChange,
+		});
+
+		canvas.on('mouse:down', function (options) {
+			var circle = new fabric.Circle({
+				radius: 10,
+				left: options.pointer.x - 10,
+				top: options.pointer.y - 10,
+				fill: 'purple',
+
+			});
+			canvas.add(circle);
+
+		})
+
+		function onChange(options) {
+			options.target.setCoords();
+			canvas.forEachObject(function (obj) {
+				if (obj === options.target) return;
+				obj.set('fill', options.target.intersectsWithObject(obj) ? 'red' : 'purple');
+			});
+		}
+
+		document.getElementById('bg_image').addEventListener('change', function (e) {
+			canvas.setBackgroundColor('', canvas.renderAll.bind(canvas));
+			canvas.setBackgroundImage(0, canvas.renderAll.bind(canvas));
+			var file = e.target.files[0];
+			var reader = new FileReader();
+			reader.onload = function (f) {
+				var data = f.target.result;
+				fabric.Image.fromURL(data, function (img) {
+					document.getElementById("bg_image_label").style.visibility = 'hidden';
+					resizeCanvas(img.width, img.height);
+					canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+				});
+			};
+			reader.readAsDataURL(file);
+		});
+
+		canvas.setBackgroundImage('../assets/img/planta.jpg', canvas.renderAll.bind(canvas));
+
+		function resizeCanvas(width = 1000, height = 400) {
+			const outerCanvasContainer = $('.content')[0];
+
+			const ratio = canvas.getWidth() / canvas.getHeight();
+			const containerWidth = width;
+			const containerHeight = height;
+
+			const scale = containerWidth / canvas.getWidth();
+			const zoom = canvas.getZoom() * scale;
+			canvas.setDimensions({
+				width: containerWidth,
+				height: containerWidth / ratio
+			});
+			canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
+		}
+
+		window.addEventListener('resize', resizeCanvas);
+		resizeCanvas();
+
+		function downloadImage() {
+			var link = document.createElement('a');
+			link.innerHTML = 'Baixar Imagem';
+			link.addEventListener('click', function (ev) {
+				link.href = canvas.toDataURL();
+				link.download = "planta.png";
+			}, false);
+			document.body.appendChild(link);
+		}
+	</script>
+	<!-- <script>
+                var canvas = new fabric.Canvas('viewport', {
+                        height: 400,
+                        width: 1000
+                });
+
+                fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
+                        return {
+                                left: object.left + this._offset.left,
+                                top: object.top + this._offset.top
+                        };
+                }
+
+                var center = new fabric.Rect({
+                        left: 0,
+                        top: 0,
+                        width: 1,
+                        height: 1,
+                        fill: 'transparent',
+                });
+                canvas.add(center)
+                canvas.centerObject(center);
+
+                var btn = document.getElementById('bg_image_label');
+
+                function positionBtn(obj) {
+                        var absCoords = canvas.getAbsoluteCoords(obj);
+                        btn.style.left = '0px';
+                        btn.style.top = '250px';
+                }
+
+                // positionBtn(center);
+
+                canvas.on('mouse:up', function (options) {
+                        console.log(options)
+                        var circle = new fabric.Circle({
+                                radius: 10,
+                                left: options.e.clientX,
+                                top: options.e.clientY,
+                                fill: 'purple',
+
+                        });
+                        canvas.add(circle);
+                        canvas.renderAll();
+                })
+
+                // canvas.on({
+                //      'object:moving': onChange,
+                //      'object:scaling': onChange
+                // });
+
+                // canvas.on('mouse:over', function (e) {
+                //      e.target.set('opacity', 0.85);
+                //      canvas.renderAll();
+                // });
+
+                // canvas.on('mouse:out', function (e) {
+                //      e.target.set('opacity', 1);
+                //      canvas.renderAll();
+                // });
+
+                // function onChange(options) {
+                //      options.target.setCoords();
+                //      canvas.forEachObject(function (obj) {
+                //              if (obj === options.target) return;
+                //              obj.set('opacity', options.target.intersectsWithObject(obj) ? 0.5 : 1);
+                //      });
+                // }
+
+        
+        </script> -->
+
+	<script>
+		var x = 0;
+		var y = 0;
+		var scrolltop = 0;
+		var scrollleft = 0;
+
+		function showCoords(event) {
+			x = event.clientX;
+			y = event.clientY;
+			var coor = "X: " + x + ", Y: " + y + ", scroll top: " + scrolltop;
+			document.getElementById("coor").innerHTML = coor;
+		}
+
+		function getCoord() {
+			var div = $("#canvas");
+			let posX = div.offset().left;
+			let posY = div.offset().top;
+			let realx = x - posX + scrollleft - 15;
+			let realy = y - posY + scrolltop - 15;
+			div.append(
+				'<div class="move-item" style="position:absolute; cursor: move; opacity:0.5; z-index: 1000; top:' +
+				realy +
+				"px; left:" +
+				realx +
+				'px; width:30px; height:30px; border-radius:30px 30px; background-color:blueviolet;  "> <\/div>'
+			);
+		}
+
+		window.addEventListener("scroll", function () {
+			scrolltop = $("body").scrollTop();
+			scrollleft = $("body").scrollLeft();
+		});
+
+		function clearCoor() {
+			document.getElementById("coor").innerHTML = "&nbsp;";
+		}
+	</script>
+</body>
+
+</html>
