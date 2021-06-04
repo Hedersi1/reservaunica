@@ -94,6 +94,7 @@
 		
 		//variáveis
 		const STEP = 1;
+		const COLOR = '#78BE78';
 
         var Direction = {
             LEFT: 0,
@@ -214,7 +215,7 @@
 				radius: 10,
 				left: options.absolutePointer.x - 10,
 				top: options.absolutePointer.y - 10,
-				fill: '#78BE78',
+				fill: COLOR,
 				Id : 0,
 				Descricao : ''
 			});
@@ -225,10 +226,15 @@
 
 		});
 
+		canvas.on('object:moved', function (options) {
+			log('object:moved', options);
+			onIntersect(options.target);
+			editChair(canvas.getActiveObject().get("type") == "activeSelection");
+		});
+
 		canvas.on({
-			'object:moving': onChange,
-			'object:scaling': onChange,
-			'object:moved': function (opt) { log('object:moved', opt) },
+			'object:moving': function (e) { onIntersect(e.target);  },
+			'object:scaling': function (e) { onIntersect(e.target);  },
 			'object:scaled': function (opt) { log('object:scaled', opt) },
 		});
 		
@@ -257,6 +263,10 @@
 				
 				FormChair.show();
 			}
+		});
+
+		window.fabric.util.addListener(canvas.upperCanvasEl,'dragover', function (event, self) {
+			alert("a");
 		});
 		
 		//criando evento para mover objetos selecionados pelo teclado
@@ -292,20 +302,36 @@
 					}
 					activeObject.setCoords();
 					canvas.renderAll();
-					
+
+					onIntersect(activeObject);
 					editChair(type == "activeSelection");
 				}
             }
         }
 
 		// Deixa vermelha a mesma que estiver sobrepondo, indicando que não deve colocar aí.
-		function onChange(options) {
-			options.target.setCoords();
-			canvas.forEachObject(function (obj) {
-				if (obj === options.target) return;
-				
-				options.target.set('fill', options.target.intersectsWithObject(obj) ? 'red' : '#78BE78');
+		function onIntersect(targ) {
+
+			targ.setCoords();
+			var items = canvas.getObjects().filter(function(o){
+				return targ !== o;
 			});
+
+			var hit = false;
+
+			for (var i = 0, n = items.length; i < n; i++) {
+				var m = items[i];
+
+				if (targ.intersectsWithObjec(m)) {
+					targ.set("fill", "red");
+					hit = true;
+				} 
+				else {
+					if (!hit) {
+						targ.set("fill", COLOR);
+					}
+				}
+			}
 		}
 
 		// Eventos de log
@@ -374,22 +400,31 @@
 			FormChair.hide();
 		}
 
+		var timeout;
 		//Criar / Editar Cadeira(s) ao movimentar
 		function editChair(multiple){
 			let objects = [];
 			if(multiple)
 			{
 				canvas.getActiveObjects().forEach((obj) => {
-					objects.pop({ "Id": obj.get('Id'), "X": obj.get('left'), "Y": obj.get('top') }); 
+					objects.push({ "Id": obj.get('Id'), "X": obj.get('left'), "Y": obj.get('top') }); 
 				});
 			}
 			else
 			{
 				var activeObject = canvas.getActiveObject();
-				objects.pop({ "Id": activeObject.get('Id'), "X": activeObject.get('left'), "Y": activeObject.get('top') }); 
+				objects.push({ "Id": activeObject.get('Id'), "X": activeObject.get('left'), "Y": activeObject.get('top') }); 
 			}
 			console.log(objects);
-			//fazer uma requisição post das alterações para atualizar a(s) coordenada(s)
+
+			if(timeout) {
+				clearTimeout(timeout);
+				timeout = null;
+			}
+
+			timeout = setTimeout(function(){
+				//Fazer a chamada post para atualização aqui, isso permitirar que somente o ultimo movimento seja salvo no banco de dados
+			}, 500);
 		}
 
 		//Excluir Cadeira(s) 
