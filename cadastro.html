@@ -38,10 +38,10 @@
 			<div class="container">
 				<div class="painel">
 					<input type="file" id="bg_image"> 
-					<label for="bg_image" id="bg_image_label" class="btn-1">
+					<label for="bg_image" id="bg_image_label" class="btn-1" style="top: 250px;">
 					<span class="mx-3"><i class="fas fa-image pr-2"></i>Selecionar Planta</span></label>
-					<div class="content w-100">
-						<canvas id="viewport" style="display: none;"></canvas>
+					<div class="content w-100" >
+						<canvas id="viewport"></canvas>
 					</div>
 					<button class="btn mt-1" onclick="showLogs()">Logs</button>
 				</div>
@@ -171,26 +171,6 @@
 				top: object.top + this._offset.top
 			};
 		}
-
-		var center = new fabric.Rect({
-			left: 0,
-			top: 0,
-			width: 1,
-			height: 1,
-			fill: 'transparent',
-		});
-		canvas.add(center)
-		canvas.centerObject(center);
-
-		var btn = document.getElementById('bg_image_label');
-
-		function positionBtn(obj) {
-			var absCoords = canvas.getAbsoluteCoords(obj);
-			btn.style.left = '0px';
-			btn.style.top = '250px';
-		}
-
-		positionBtn(center);
 		/* Posiciona o botão de subir planta no centro do canva */
 
 		/*INICIO ADIÇÃO DE EVENTOS AO CANVAS*/
@@ -308,20 +288,17 @@
 
             if (activeObject != null) {
 				var type = activeObject.get("type");
-				
-				if(type == "circle" || type == "activeSelection"){
-					switch (direction) {
-						case Direction.LEFT: activeObject.set("left", activeObject.get("left") - STEP);break;
-						case Direction.UP: activeObject.set("top", activeObject.get("top") - STEP); break;
-						case Direction.RIGHT: activeObject.set("left", activeObject.get("left") + STEP); break;
-						case Direction.DOWN: activeObject.set("top", activeObject.get("top") + STEP); break;
-					}
-					activeObject.setCoords();
-					canvas.renderAll();
-
-					onIntersect(activeObject);
-					editTable(type == "activeSelection");
+				switch (direction) {
+					case Direction.LEFT: activeObject.set("left", activeObject.get("left") - STEP);break;
+					case Direction.UP: activeObject.set("top", activeObject.get("top") - STEP); break;
+					case Direction.RIGHT: activeObject.set("left", activeObject.get("left") + STEP); break;
+					case Direction.DOWN: activeObject.set("top", activeObject.get("top") + STEP); break;
 				}
+				activeObject.setCoords();
+				canvas.renderAll();
+
+				onIntersect(activeObject);
+				editTable(type == "activeSelection");
             }
         }
 
@@ -545,14 +522,10 @@
 			};
 			reader.readAsDataURL(file);
 			canvas.requestRenderAll();
-			
 			if(canvas.getZoom() != 1){
 				canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 			}
-			setTimeout(() => { 
-				resizeCanvas(); 
-				$("#viewport").css("display", "block"); 
-			}, 100);
+			setTimeout(() => { resizeCanvas();  }, 100);
 		});
 
 		// TODO: redimensionar a imagem para um tamanho mínimo.
@@ -573,7 +546,7 @@
 		}
 
 		$(window).resize(resizeCanvas);
-		
+		resizeCanvas();
 		
 
 		// Baixa a imagem do canvas

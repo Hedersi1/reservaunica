@@ -85,21 +85,9 @@
 			bl: true, //bottom left
 			br: true //bottom right
 		});
-		fabric.Object.prototype.hasRotatingPoint = false;
 
 		var deleteImg = document.createElement('img');
 		deleteImg.src = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
-
-
-
-
-		/* Posiciona o botão de subir planta no centro do canva */
-		fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
-			return {
-				left: object.left + this._offset.left,
-				top: object.top + this._offset.top
-			};
-		}
 
 		var center = new fabric.Rect({
 			left: 0,
@@ -130,7 +118,7 @@
 
 		// Adiciona nova mesa
 		canvas.on('mouse:dblclick', function (options) {
-			log('mouse:dblclick', options);
+			//log('mouse:dblclick', options);
 
 			if (options && options.target) return;
 
@@ -138,11 +126,6 @@
 				radius: 10,
 				left: options.absolutePointer.x - 10,
 				top: options.absolutePointer.y - 10,
-				lockScalingX: true,
-        		lockScalingY: true,
-				fill: COLOR,
-				Id : 0,
-				Descricao : ''
 			});
 			
 			canvas.add(circle);
@@ -150,44 +133,17 @@
 			canvas.renderAll();
 		});
 
-		canvas.on('object:moved', function (options) {
-			log('object:moved', options);
-			onIntersect(options.target);
-			editChair(canvas.getActiveObject().get("type") == "activeSelection");
-		});
+		// canvas.on('object:moved', function (options) {
+		// 	//log('object:moved', options);
+		// 	editChair(canvas.getActiveObject().get("type") == "activeSelection");
+		// });
 
-		canvas.on({
-			'object:moving': function (e) { onIntersect(e.target);  },
-			'object:scaling': function (e) { onIntersect(e.target);  },
-			'object:scaled': function (opt) { log('object:scaled', opt) },
-		});
+		// canvas.on({
+		// 	'object:scaled': function (opt) { log('object:scaled', opt) },
+		// });
 		
-		observeObj('mouseout');
-		addSeparator('log');
-		function observeObj(eventName) {
-			canvas.getObjects().forEach(function (o) {
-				o.on(eventName, function (opt) {
-					log(eventName, opt, o.fill)
-				});
-			});
-		}
+
 		/*FIM ADIÇÃO DE EVENTOS AO CANVAS*/
-		
-		/*INICIO EVENTOS*/
-		//Adiciona o evento double click em todos os elementos do canvas
-		//Abre o formulário para salvar a cadeira
-		window.fabric.util.addListener(canvas.upperCanvasEl, 'dblclick', function (event, self) {
-			if((canvas.getActiveObject().get("type") == "circle")){
-				var circle = canvas.getActiveObject();
-				$("#TitleForm").html((circle.get("Id") == 0)? "Criar Novo Assento" : "Editar Assento");
-				$("#CoordenadaX").val(circle.get("left"));
-				$("#CoordenadaY").val(circle.get("top"));
-				$("#CircleId").val(circle.get("Id"));
-				$("#Descricao").val(circle.get("Descricao"));
-				
-				FormChair.show();
-			}
-		});
 
 		//criando evento para mover objetos selecionados pelo teclado
 		window.fabric.util.addListener(document.body, 'keydown', function (options) {
@@ -202,270 +158,33 @@
                 onMoveSelected(Direction.RIGHT);
             } else if (key === 40) { // handle Down key
                 onMoveSelected(Direction.DOWN);
-            }
-
-			//Copy - CTRL+C
-			if (event.ctrlKey && key === 67) {
+            } else if (event.ctrlKey && key === 67) {//Copy - CTRL+C
 				copy();
-			}
-			//Paste - CTRL+V
-			else if (event.ctrlKey && key === 86) {
+			} else if (event.ctrlKey && key === 86) { //Paste - CTRL+V
 				Paste();
-			}
-
-			//Delete
-			if(key === 46){
-				deleteChair(canvas);
+			} if(key === 46){ //Delete
+				//deleteChair(canvas);
 			}
         });
 
-
 		//Método utilizado para mover os objetos
 		function onMoveSelected(direction) {
-
             var activeObject = canvas.getActiveObject();
 
             if (activeObject != null) {
-				var type = activeObject.get("type");
-				
-				if(type == "circle" || type == "activeSelection"){
-					switch (direction) {
-						case Direction.LEFT: activeObject.set("left", activeObject.get("left") - STEP);break;
-						case Direction.UP: activeObject.set("top", activeObject.get("top") - STEP); break;
-						case Direction.RIGHT: activeObject.set("left", activeObject.get("left") + STEP); break;
-						case Direction.DOWN: activeObject.set("top", activeObject.get("top") + STEP); break;
-					}
-					activeObject.setCoords();
-					canvas.renderAll();
-
-					onIntersect(activeObject);
-					editChair(type == "activeSelection");
-				}
+                switch (direction) {
+                    case Direction.LEFT: activeObject.set("left", activeObject.get("left") - STEP);break;
+                    case Direction.UP: activeObject.set("top", activeObject.get("top") - STEP); break;
+                    case Direction.RIGHT: activeObject.set("left", activeObject.get("left") + STEP); break;
+                    case Direction.DOWN: activeObject.set("top", activeObject.get("top") + STEP); break;
+                }
+                activeObject.setCoords();
+                canvas.renderAll();
             }
         }
 
-		// Deixa vermelha a mesma que estiver sobrepondo, indicando que não deve colocar aí.
-		function onIntersect(targ) {
 
-			targ.setCoords();
-			var items = canvas.getObjects().filter(function(o){
-				return targ !== o;
-			});
-
-			var hit = false;
-
-			for (var i = 0, n = items.length; i < n; i++) {
-				var m = items[i];
-
-				if (targ.intersectsWithObject(m)) {
-					targ.set("fill", "red");
-					hit = true;
-				} 
-				else {
-					if (!hit) {
-						targ.set("fill", COLOR);
-					}
-				}
-			}
-		}
-
-		// Eventos de log
-		var log2 = document.getElementById('log');
-		var clearBtn = document.getElementById('clearBtn');
-
-		function log(message, opt) {
-			if ((message === 'mouse:move' || message === 'mousemove' || message === 'mouse:move:before' || message === 'mousemove:before') || (message === 'dragover')) {
-				return;
-			}
-
-			var el = document.createElement('p');
-			el.appendChild(document.createTextNode(message + ' ' + JSON.stringify(opt)));
-			log2.insertBefore(el, clearBtn.nextSibling);
-			var children = log2.children;
-
-			while (children[100]) {
-				var child = children[100];
-				log2.removeChild(child);
-			}
-		}
-		/*FIM EVENTOS*/
-
-		/*Métodos de log*/
-		function showLogs() {
-			$("#log").fadeToggle();
-		};
-
-		function clearLog() {
-			var logs = log2.getElementsByTagName('p');
-
-			for (var i = logs.length; i--;) {
-				logs[i].parentNode.removeChild(logs[i]);
-			}
-		}
-
-		function addSeparator(id) {
-			document.getElementById(id).appendChild(document.createElement('br'));
-		}
-
-		//INICIO FUNÇÕES CLIENT / SERVER
-		//Criar / Editar Cadeira através do formulário
-		function saveChair(){
-			//implementar form para salvar dados no banco
-			//ao salvar subistituir a função "Math.random()" pelo id inserido no momento do post 
-			//se o retorno do formulário for sucesso
-			if(true){
-				canvas.getActiveObject().set('Id', Math.random());
-				canvas.getActiveObject().set('Descricao', $("#Descricao").val());
-			}
-			//se não conseguir salvar e o objeto ainda não foi salvo no banco, remover da tela
-			else
-			{
-				if(canvas.getActiveObject().get('Id') == 0){
-					canvas.remove(canvas.getActiveObject());
-				}
-			}
-			FormChair.hide();
-		}
-
-		//Função criada para caso o usuário não salve a cadeira no servidor
-		function cancelSaveChair(){
-			if(canvas.getActiveObject().get('Id') == 0){
-				canvas.remove(canvas.getActiveObject());
-			}
-			FormChair.hide();
-		}
-
-		var timeout;
-		//Criar / Editar Cadeira(s) ao movimentar
-		function editChair(multiple){
-			let objects = [];
-			if(multiple)
-			{
-				canvas.getActiveObjects().forEach((obj) => {
-					objects.push({ "Id": obj.get('Id'), "X": obj.get('left'), "Y": obj.get('top') }); 
-				});
-			}
-			else
-			{
-				var activeObject = canvas.getActiveObject();
-				objects.push({ "Id": activeObject.get('Id'), "X": activeObject.get('left'), "Y": activeObject.get('top') }); 
-			}
-			console.log(objects);
-
-			if(timeout) {
-				clearTimeout(timeout);
-				timeout = null;
-			}
-
-			timeout = setTimeout(function(){
-				//Fazer a chamada post para atualização aqui, isso permitirar que somente o ultimo movimento seja salvo no banco de dados
-			}, 500);
-		}
-
-		//Excluir Cadeira(s) 
-		function deleteChair(canvas){
-			//implementar form para salvar dados no banco
-			if(canvas.getActiveObject()){
-				if(confirm("Deseja remover o(s) objeto(s) selecionado(s)?")){
-					var type = canvas.getActiveObject().get('type');
-					if(type == "circle"){
-						let id = canvas.getActiveObject().get("Id")
-						console.log(id);
-
-						//fazer uma requisição post se o resultado for verdadeiro remove os itens
-						if(true){
-							canvas.remove(canvas.getActiveObject());
-							canvas.requestRenderAll();
-						}
-					}
-
-					else if(type == "activeSelection")
-					{
-						
-						let ids = [];
-						canvas.getActiveObjects().forEach((obj) => {
-							ids.push(obj.get("Id"));
-						});
-						console.log(ids);
-						
-						//fazer uma requisição post se o resultado for verdadeiro remove os itens
-						if(true){
-							canvas.getActiveObjects().forEach((obj) => {
-								canvas.remove(obj);
-							});
-							canvas.discardActiveObject();
-							canvas.requestRenderAll();
-						}
-					}
-				}
-			}
-		}
-		//FIM FUNÇÕES CLIENT / SERVER
-		var _clipboard = null;
-		function copy(){
-            _clipboard = null;
-			if(canvas.getActiveObject())
-			{
-                canvas.getActiveObject().clone(function(cloned) {
-                    _clipboard = cloned;
-                });
-			}
-		}
-
-		function Paste() {
-            // clone again, so you can do multiple copies.
-            _clipboard.clone(function(clonedObj) {
-                canvas.discardActiveObject();
-                clonedObj.set({
-                    left: clonedObj.left + 10,
-                    top: clonedObj.top + 10,
-                    evented: true,
-                });
-                if (clonedObj.type === 'activeSelection') {
-                    // active selection needs a reference to the canvas.
-                    clonedObj.canvas = canvas;
-                    clonedObj.forEachObject(function(obj) {
-                        canvas.add(obj);
-                    });
-                    // this should solve the unselectability
-                    clonedObj.setCoords();
-                } else {
-                    canvas.add(clonedObj);
-                }
-                _clipboard.top += 10;
-                _clipboard.left += 10;
-                canvas.setActiveObject(clonedObj);
-                canvas.requestRenderAll();
-            });
-        }
-		
-		// Evento de upar imagem da planta
-		document.getElementById('bg_image').addEventListener('change', function (e) {
-			
-			canvas.setBackgroundColor('', canvas.renderAll.bind(canvas));
-			canvas.setBackgroundImage(0, canvas.renderAll.bind(canvas));
-			var file = e.target.files[0];
-			var reader = new FileReader();
-
-			reader.onload = function (f) {
-				var data = f.target.result;
-				fabric.Image.fromURL(data, function (img) {
-					document.getElementById("bg_image_label").style.visibility = 'hidden';
-
-					canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-						scaleX: canvas.width / img.width,
-						scaleY: canvas.height / img.height
-					});
-				});
-			};
-			reader.readAsDataURL(file);
-			canvas.requestRenderAll();
-
-			setTimeout(() => {
-				resizeCanvas();
-			}, 500);
-		});
-
+	
 		// TODO: redimensionar a imagem para um tamanho mínimo.
 		function resizeCanvas() {
 			const outerCanvasContainer = $('.content')[0];
