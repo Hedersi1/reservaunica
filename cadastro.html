@@ -54,7 +54,7 @@
 	</div>
 	
 	<!-- Modal -->
-	<div class="modal fade" id="FormChair" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal fade" id="FormTable" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
 		<div class="modal-content">
 		  <div class="modal-header">
@@ -65,7 +65,7 @@
 				<input type="hidden" id="CircleId">
 				<div class="mb-12">
 				  <label for="Descricao" class="form-label">Descrição do Assento</label>
-				  <input type="text" class="form-control" id="Descricao" required="Obrigatório" placeholder="Cadeira 01">
+				  <input type="text" class="form-control" id="Descricao" required="Obrigatório" placeholder="Mesa 01">
 				</div>
 				<div class="mb-12">
 				  <label for="CoordenadaX" class="form-label">Coordenada X</label>
@@ -78,8 +78,8 @@
 			</form>
 		  </div>
 		  <div class="modal-footer">
-			<button type="button" onclick="cancelSaveChair()" class="btn btn-secondary" >Close</button>
-			<button type="button" onclick="saveChair()" class="btn btn-primary">Save changes</button>
+			<button type="button" onclick="cancelSaveTable()" class="btn btn-secondary" >Close</button>
+			<button type="button" onclick="saveTable()" class="btn btn-primary">Save changes</button>
 		  </div>
 		</div>
 	  </div>
@@ -109,7 +109,7 @@
         };
 		
 		//Modal Form
-		var FormChair = new bootstrap.Modal(document.getElementById('FormChair'), { keyboard: true });
+		var FormTable = new bootstrap.Modal(document.getElementById('FormTable'), { keyboard: true });
 		
 		//criando o canvas
 		var canvas = this.__canvas = new fabric.Canvas('viewport', {
@@ -157,11 +157,11 @@
 			cornerSize: 15
 		});
 
-		// Deleta a Cadeira
+		// Deleta a Mesa
 		function deleteObject(eventData, transform) {
 			var target = transform.target;
 			var canvas = target.canvas;
-			deleteChair(canvas);
+			deleteTable(canvas);
 		}
 
 		/* Posiciona o botão de subir planta no centro do canva */
@@ -235,7 +235,7 @@
 		canvas.on('object:moved', function (options) {
 			log('object:moved', options);
 			onIntersect(options.target);
-			editChair(canvas.getActiveObject().get("type") == "activeSelection");
+			editTable(canvas.getActiveObject().get("type") == "activeSelection");
 		});
 
 		canvas.on({
@@ -257,7 +257,7 @@
 		
 		/*INICIO EVENTOS*/
 		//Adiciona o evento double click em todos os elementos do canvas
-		//Abre o formulário para salvar a cadeira
+		//Abre o formulário para salvar a Mesa
 		window.fabric.util.addListener(canvas.upperCanvasEl, 'dblclick', function (event, self) {
 			if((canvas.getActiveObject().get("type") == "circle")){
 				var circle = canvas.getActiveObject();
@@ -267,7 +267,7 @@
 				$("#CircleId").val(circle.get("Id"));
 				$("#Descricao").val(circle.get("Descricao"));
 				
-				FormChair.show();
+				FormTable.show();
 			}
 		});
 
@@ -296,7 +296,7 @@
 			}
 			//Delete
 			if(key === 46){
-				deleteChair(canvas);
+				deleteTable(canvas);
 			}
         });
 
@@ -320,7 +320,7 @@
 					canvas.renderAll();
 
 					onIntersect(activeObject);
-					editChair(type == "activeSelection");
+					editTable(type == "activeSelection");
 				}
             }
         }
@@ -389,8 +389,8 @@
 		}
 
 		//INICIO FUNÇÕES CLIENT / SERVER
-		//Criar / Editar Cadeira através do formulário
-		function saveChair(){
+		//Criar / Editar Mesa através do formulário
+		function saveTable(){
 			var obj = canvas.getActiveObject();
 			//implementar form para salvar dados no banco
 			//ao salvar subistituir a função "Math.random()" pelo id inserido no momento do post 
@@ -402,19 +402,19 @@
 			//se não conseguir salvar e o objeto ainda não foi salvo no banco, remover da tela
 			obj.set("fill", obj.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
 			canvas.renderAll();
-			FormChair.hide();
+			FormTable.hide();
 		}
 
-		//Função criada para caso o usuário não salve a cadeira no servidor
-		function cancelSaveChair(){
+		//Função criada para caso o usuário não salve a Mesa no servidor
+		function cancelSaveTable(){
 			var obj = canvas.getActiveObject();
 			obj.set("fill", obj.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
-			FormChair.hide();
+			FormTable.hide();
 		}
 
 		var timeout;
-		//Criar / Editar Cadeira(s) ao movimentar
-		function editChair(multiple){
+		//Criar / Editar Mesa(s) ao movimentar
+		function editTable(multiple){
 			let objects = [];
 			if(multiple)
 			{
@@ -439,8 +439,8 @@
 			}, 500);
 		}
 
-		//Excluir Cadeira(s) 
-		function deleteChair(canvas){
+		//Excluir Mesa(s) 
+		function deleteTable(canvas){
 			//implementar form para salvar dados no banco
 			if(canvas.getActiveObject()){
 				if(confirm("Deseja remover o(s) objeto(s) selecionado(s)?")){
@@ -545,11 +545,14 @@
 			};
 			reader.readAsDataURL(file);
 			canvas.requestRenderAll();
-
-			setTimeout(() => {
-				resizeCanvas();
-				$("#viewport").css("display", "block");
-			}, 500);
+			
+			if(canvas.getZoom() != 1){
+				canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+			}
+			setTimeout(() => { 
+				resizeCanvas(); 
+				$("#viewport").css("display", "block"); 
+			}, 100);
 		});
 
 		// TODO: redimensionar a imagem para um tamanho mínimo.
