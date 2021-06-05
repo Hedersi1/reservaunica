@@ -41,7 +41,7 @@
 					<label for="bg_image" id="bg_image_label" class="btn-1">
 					<span class="mx-3"><i class="fas fa-image pr-2"></i>Selecionar Planta</span></label>
 					<div class="content w-100">
-						<canvas id="viewport"></canvas>
+						<canvas id="viewport" style="display: none;"></canvas>
 					</div>
 					<button class="btn mt-1" onclick="showLogs()">Logs</button>
 				</div>
@@ -95,9 +95,11 @@
 		
 		//variáveis
 		const STEP = 1;
-		const COLOR = '#78BE78';
-		var objectcopy;
-		var objectscopy;
+		var Color = {
+            PENDDING: '#ffdd00',
+            INTERSECT: "red",
+            SAVED: "#78BE78"
+        };
 
         var Direction = {
             LEFT: 0,
@@ -107,7 +109,7 @@
         };
 		
 		//Modal Form
-		var FormChair = new bootstrap.Modal(document.getElementById('FormChair'), { keyboard: false });
+		var FormChair = new bootstrap.Modal(document.getElementById('FormChair'), { keyboard: true });
 		
 		//criando o canvas
 		var canvas = this.__canvas = new fabric.Canvas('viewport', {
@@ -127,6 +129,8 @@
 			br: true //bottom right
 		});
 		fabric.Object.prototype.hasRotatingPoint = false;
+		fabric.Object.prototype.lockScalingX = true;
+		fabric.Object.prototype.lockScalingY = true;
 
 		var deleteImg = document.createElement('img');
 		deleteImg.src = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
@@ -145,8 +149,8 @@
 		fabric.Object.prototype.controls.deleteControl = new fabric.Control({
 			x: 0.5,
 			y: -0.5,
-			offsetY: -12,
-			offsetX: 12,
+			offsetY: -10,
+			offsetX: 10,
 			cursorStyle: 'pointer',
 			mouseUpHandler: deleteObject,
 			render: renderIcon(deleteImg),
@@ -216,11 +220,10 @@
 				radius: 10,
 				left: options.absolutePointer.x - 10,
 				top: options.absolutePointer.y - 10,
-				lockScalingX: true,
-        		lockScalingY: true,
-				fill: COLOR,
+				fill: Color.PENDDING,
 				Id : 0,
-				Descricao : ''
+				Descricao : '',
+				cornerSize: 10
 			});
 			
 			canvas.add(circle);
@@ -268,7 +271,7 @@
 			}
 		});
 
-		//criando evento para mover objetos selecionados pelo teclado
+		//criando evento do teclado: Move, Copy, Paste e Delete
 		window.fabric.util.addListener(document.body, 'keydown', function (options) {
             if (options.repeat)  return;
 			
@@ -285,13 +288,12 @@
 
 			//Copy - CTRL+C
 			if (event.ctrlKey && key === 67) {
-				//copy();
+				copy();
 			}
 			//Paste - CTRL+V
 			else if (event.ctrlKey && key === 86) {
-				//clone(objectcopy);
+				paste();
 			}
-
 			//Delete
 			if(key === 46){
 				deleteChair(canvas);
@@ -337,12 +339,12 @@
 				var m = items[i];
 
 				if (targ.intersectsWithObject(m)) {
-					targ.set("fill", "red");
+					targ.set("fill", Color.INTERSECT);
 					hit = true;
 				} 
 				else {
 					if (!hit) {
-						targ.set("fill", COLOR);
+						targ.set("fill", targ.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
 					}
 				}
 			}
@@ -389,28 +391,24 @@
 		//INICIO FUNÇÕES CLIENT / SERVER
 		//Criar / Editar Cadeira através do formulário
 		function saveChair(){
+			var obj = canvas.getActiveObject();
 			//implementar form para salvar dados no banco
 			//ao salvar subistituir a função "Math.random()" pelo id inserido no momento do post 
-			//se o retorno do formulário for sucesso
+
 			if(true){
-				canvas.getActiveObject().set('Id', Math.random());
-				canvas.getActiveObject().set('Descricao', $("#Descricao").val());
+				obj.set('Id', Math.random());
+				obj.set('Descricao', $("#Descricao").val());
 			}
 			//se não conseguir salvar e o objeto ainda não foi salvo no banco, remover da tela
-			else
-			{
-				if(canvas.getActiveObject().get('Id') == 0){
-					canvas.remove(canvas.getActiveObject());
-				}
-			}
+			obj.set("fill", obj.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
+			canvas.renderAll();
 			FormChair.hide();
 		}
 
 		//Função criada para caso o usuário não salve a cadeira no servidor
 		function cancelSaveChair(){
-			if(canvas.getActiveObject().get('Id') == 0){
-				canvas.remove(canvas.getActiveObject());
-			}
+			var obj = canvas.getActiveObject();
+			obj.set("fill", obj.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
 			FormChair.hide();
 		}
 
@@ -480,43 +478,51 @@
 			}
 		}
 		//FIM FUNÇÕES CLIENT / SERVER
-		
+
+
+		var _clipboard = null;
 		function copy(){
-			objectcopy = null;
+            _clipboard = null;
 			if(canvas.getActiveObject())
 			{
-				objectcopy = canvas.getActiveObject();
+                canvas.getActiveObject().clone(function(cloned) {
+                    _clipboard = cloned;
+                });
 			}
 		}
 
-		//Clone Object(s)
-		function clone(object) {
-			if (!object || object == null) return;
-			
-			if (object.get("type") ==  "activeSelection") {
-				object._objects.forEach((obj) => {
-				 	obj.clone(function(clone) {
-				 		canvas.add(clone.set({
-							top: obj.top + 15,
-							left: obj.left + 15,
-				 		}));
-				 		//canvas.setActiveObject(clone);
-				 	});
-				});
-			}
-			else {
-				//var object = canvas.getActiveObject();
-				object.clone(function(clone) {
-					canvas.add(clone.set({
-						top: object.top + 15,
-						left: object.left + 15,
-					}));
-					
-					canvas.setActiveObject(clone);
-				});
-			}
-			canvas.requestRenderAll();
-		}
+		function paste() {
+            // clone again, so you can do multiple copies.
+            _clipboard.clone(function(clonedObj) {
+                canvas.discardActiveObject();
+                clonedObj.set({
+                    left: clonedObj.left + 15,
+                    top: clonedObj.top + 15,
+					fill: Color.PENDDING,
+					Id : 0,
+					Descricao : '',
+                    evented: true,
+                });
+                if (clonedObj.type === 'activeSelection') {
+                    // active selection needs a reference to the canvas.
+                    clonedObj.canvas = canvas;
+                    clonedObj.forEachObject(function(obj) {
+						obj.set("Id", 0);
+						obj.set("Descricao", '');
+						obj.set("fill", Color.PENDDING);
+                        canvas.add(obj);
+                    });
+                    // this should solve the unselectability
+                    clonedObj.setCoords();
+                } else {
+                    canvas.add(clonedObj);
+                }
+                _clipboard.top += 15;
+                _clipboard.left += 15;
+                canvas.setActiveObject(clonedObj);
+                canvas.requestRenderAll();
+            });
+        }
 		
 		// Evento de upar imagem da planta
 		document.getElementById('bg_image').addEventListener('change', function (e) {
@@ -542,6 +548,7 @@
 
 			setTimeout(() => {
 				resizeCanvas();
+				$("#viewport").css("display", "block");
 			}, 500);
 		});
 
