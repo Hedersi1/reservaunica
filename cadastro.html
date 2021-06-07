@@ -191,6 +191,7 @@
 		});
 
 		// Adiciona nova mesa
+		var create = false;
 		canvas.on('mouse:dblclick', function (options) {
 			log('mouse:dblclick', options);
 
@@ -209,13 +210,13 @@
 			canvas.add(circle);
 			canvas.setActiveObject(circle);
 			canvas.renderAll();
-
+			create = true;
 		});
 
 		canvas.on('object:moved', function (options) {
 			log('object:moved', options);
 			onIntersect(options.target);
-			editTable(canvas.getActiveObject().get("type") == "activeSelection");
+			editTable(canvas.getActiveObject().type == "activeSelection");
 		});
 
 		canvas.on({
@@ -239,7 +240,7 @@
 		//Adiciona o evento double click em todos os elementos do canvas
 		//Abre o formulário para salvar a Mesa
 		window.fabric.util.addListener(canvas.upperCanvasEl, 'dblclick', function (event, self) {
-			if((canvas.getActiveObject().get("type") == "circle")){
+			if((canvas.getActiveObject() && canvas.getActiveObject().type == "circle") && !create){
 				var circle = canvas.getActiveObject();
 				$("#TitleForm").html((circle.get("Id") == 0)? "Criar Novo Assento" : "Editar Assento");
 				$("#CoordenadaX").val(circle.get("left"));
@@ -249,6 +250,7 @@
 				
 				FormTable.show();
 			}
+			create = false;
 		});
 
 		//criando evento do teclado: Move, Copy, Paste e Delete
@@ -287,12 +289,12 @@
             var activeObject = canvas.getActiveObject();
 
             if (activeObject != null) {
-				var type = activeObject.get("type");
+				var type = activeObject.type;
 				switch (direction) {
-					case Direction.LEFT: activeObject.set("left", activeObject.get("left") - STEP);break;
-					case Direction.UP: activeObject.set("top", activeObject.get("top") - STEP); break;
-					case Direction.RIGHT: activeObject.set("left", activeObject.get("left") + STEP); break;
-					case Direction.DOWN: activeObject.set("top", activeObject.get("top") + STEP); break;
+					case Direction.LEFT: activeObject.left = activeObject.left - STEP; break;
+					case Direction.UP: activeObject.top =   activeObject.top - STEP; break;
+					case Direction.RIGHT: activeObject.left = activeObject.left + STEP; break;
+					case Direction.DOWN:  activeObject.top =   activeObject.top + STEP; break;
 				}
 				activeObject.setCoords();
 				canvas.renderAll();
@@ -306,12 +308,9 @@
 		function onIntersect(targ) {
 
 			targ.setCoords();
-			var items = canvas.getObjects().filter(function(o){
-				return targ !== o;
-			});
+			var items = canvas.getObjects().filter(function(o){ return targ !== o; });
 
 			var hit = false;
-
 			for (var i = 0, n = items.length; i < n; i++) {
 				var m = items[i];
 
@@ -377,7 +376,7 @@
 				obj.set('Descricao', $("#Descricao").val());
 			}
 			//se não conseguir salvar e o objeto ainda não foi salvo no banco, remover da tela
-			obj.set("fill", obj.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
+			onIntersect(obj);
 			canvas.renderAll();
 			FormTable.hide();
 		}
@@ -385,7 +384,7 @@
 		//Função criada para caso o usuário não salve a Mesa no servidor
 		function cancelSaveTable(){
 			var obj = canvas.getActiveObject();
-			obj.set("fill", obj.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
+			onIntersect(obj);
 			FormTable.hide();
 		}
 
@@ -421,8 +420,8 @@
 			//implementar form para salvar dados no banco
 			if(canvas.getActiveObject()){
 				if(confirm("Deseja remover o(s) objeto(s) selecionado(s)?")){
-					var type = canvas.getActiveObject().get('type');
-					if(type == "circle"){
+					var type = canvas.getActiveObject().type;
+					if(type === "circle"){
 						let id = canvas.getActiveObject().get("Id")
 						console.log(id);
 
@@ -433,7 +432,7 @@
 						}
 					}
 
-					else if(type == "activeSelection")
+					else if(type === "activeSelection")
 					{
 						
 						let ids = [];
@@ -503,17 +502,17 @@
 		
 		// Evento de upar imagem da planta
 		document.getElementById('bg_image').addEventListener('change', function (e) {
-			
 			canvas.setBackgroundColor('', canvas.renderAll.bind(canvas));
 			canvas.setBackgroundImage(0, canvas.renderAll.bind(canvas));
 			var file = e.target.files[0];
 			var reader = new FileReader();
-
 			reader.onload = function (f) {
 				var data = f.target.result;
 				fabric.Image.fromURL(data, function (img) {
 					document.getElementById("bg_image_label").style.visibility = 'hidden';
-
+					console.log(img);
+					console.log(canvas);
+					canvas.height =  (img.height * canvas.width / img.width);
 					canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
 						scaleX: canvas.width / img.width,
 						scaleY: canvas.height / img.height
@@ -547,19 +546,6 @@
 
 		$(window).resize(resizeCanvas);
 		resizeCanvas();
-		
-
-		// Baixa a imagem do canvas
-		function downloadImage() {
-			var link = document.createElement('a');
-			link.innerHTML = 'Baixar Imagem';
-			link.addEventListener('click', function (ev) {
-				link.href = canvas.toDataURL();
-				link.download = "planta.png";
-			}, false);
-			document.body.appendChild(link);
-			link.click();
-		}
 
 	</script>
 </body>
