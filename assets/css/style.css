@@ -341,9 +341,14 @@ footer {
   color: #9BA5BE;
 }
 
+.painel-subtitle li.pending {
+  color: #ebb367;
+}
+
 .painel-subtitle li.blocked {
   color: #dd799a;
 }
+
 
 .canvas-container {
   margin: auto;
