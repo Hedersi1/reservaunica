@@ -28,7 +28,7 @@
 				</ul>
 			</div>
 			<a href="/" class="mr-5">
-				<h2>Reserva<b>Canto</b></h2>
+				<h2>Reserva<b>Única</b></h2>
 			</a>
 			<button class="btn btn-link menu-action mr-3" title="Agendar reserva">
 				<i class="far fa-bell has-activity"></i>
@@ -36,11 +36,37 @@
 		</header>
 		<main class="admin__main">
 			<div class="container">
+				<div class="row">
+					<label class="check-button">
+						<input type="radio" checked="checked" id="selectBtn" name="radio">
+						<span class="check-title"><i class="fas fa-mouse-pointer"></i>Selecionar</span>
+					</label>
+					<label class="check-button">
+						<input type="radio" checked="checked" id="insertBtn" name="radio">
+						<span class="check-title btn-blue"><i class="fas fa-plus"></i>Criar Mesa</span>
+					</label>
+					<label class="check-button">
+						<input type="radio" checked="checked" id="removeBtn" name="radio">
+						<span class="check-title btn-red"><i class="fas fa-times-circle"></i>Remover</span>
+					</label>
+					<label class="check-button">
+						<input type="radio" checked="checked" id="moveBtn" name="radio">
+						<span class="check-title btn-yellow"><i class="fas fa-arrows-alt"></i>Mover</span>
+					</label>
+					<label class="check-button">
+						<input type="radio" checked="checked" id="copyBtn" name="radio">
+						<span class="check-title"><i class="fas fa-copy"></i>Copiar</span>
+					</label>
+					<label class="check-button">
+						<input type="radio" checked="checked" id="pasteBtn" name="radio">
+						<span class="check-title"><i class="fas fa-paste"></i>Colar</span>
+					</label>
+				</div>
 				<div class="painel">
-					<input type="file" id="bg_image"> 
+					<input type="file" id="bg_image">
 					<label for="bg_image" id="bg_image_label" class="btn-1" style="top: 250px;">
-					<span class="mx-3"><i class="fas fa-image pr-2"></i>Selecionar Planta</span></label>
-					<div class="content w-100" >
+						<span class="mx-3"><i class="fas fa-image pr-2"></i>Selecionar Planta</span></label>
+					<div class="content w-100">
 						<canvas id="viewport"></canvas>
 					</div>
 					<button class="btn mt-1" onclick="showLogs()">Logs</button>
@@ -52,43 +78,44 @@
 			</div>
 		</main>
 	</div>
-	
+
 	<!-- Modal -->
 	<div class="modal fade" id="FormTable" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	  <div class="modal-dialog">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<h5 class="modal-title" id="TitleForm">Salvar Assento</h5>
-		  </div>
-		  <div class="modal-body">
-			<form >
-				<input type="hidden" id="CircleId">
-				<div class="mb-12">
-				  <label for="Descricao" class="form-label">Descrição do Assento</label>
-				  <input type="text" class="form-control" id="Descricao" required="Obrigatório" placeholder="Mesa 01">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="TitleForm">Salvar Assento</h5>
 				</div>
-				<div class="mb-12">
-				  <label for="CoordenadaX" class="form-label">Coordenada X</label>
-				  <input type="text"  class="form-control" id="CoordenadaX" readonly="readonly" ></input>
+				<div class="modal-body">
+					<form>
+						<input type="hidden" id="CircleId">
+						<div class="mb-12">
+							<label for="Descricao" class="form-label">Descrição do Assento</label>
+							<input type="text" class="form-control" id="Descricao" required="Obrigatório"
+								placeholder="Mesa 01">
+						</div>
+						<div class="mb-12">
+							<label for="CoordenadaX" class="form-label">Coordenada X</label>
+							<input type="text" class="form-control" id="CoordenadaX" readonly="readonly"></input>
+						</div>
+						<div class="mb-12">
+							<label for="CoordenadaX" class="form-label">Coordenada Y</label>
+							<input type="text" class="form-control" id="CoordenadaY" readonly="readonly"></input>
+						</div>
+						<div class="mb-12">
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" id="Ativo" checked>
+								<label class="form-check-label" for="Ativo">Mesa Ativa?</label>
+							</div>
+						</div>
+					</form>
 				</div>
-				<div class="mb-12">
-				  <label for="CoordenadaX" class="form-label">Coordenada Y</label>
-				  <input type="text"  class="form-control" id="CoordenadaY" readonly="readonly"  ></input>
-				</div>			
-				<div class="mb-12">
-					<div class="form-check form-switch">
-						<input class="form-check-input" type="checkbox" id="Ativo" checked>
-						<label class="form-check-label" for="Ativo">Mesa Ativa?</label>
-					</div>
-				</div>	
-			</form>
-		  </div>
-		  <div class="modal-footer">
-			<button type="button" onclick="cancelSaveTable()" class="btn btn-secondary" >Close</button>
-			<button type="button" onclick="saveTable()" class="btn btn-primary">Save changes</button>
-		  </div>
+				<div class="modal-footer">
+					<button type="button" onclick="cancelSaveTable()" class="btn btn-secondary">Close</button>
+					<button type="button" onclick="saveTable()" class="btn btn-primary">Save changes</button>
+				</div>
+			</div>
 		</div>
-	  </div>
 	</div>
 
 
@@ -99,7 +126,6 @@
 	<script src="https://kit.fontawesome.com/4a72eb39d8.js" crossorigin="anonymous"></script>
 	<script src="assets/js/fabric.min.js"></script>
 	<script>
-		
 		//variáveis
 		const CANVAS_WIDTH = 1000;
 		var Color = {
@@ -110,16 +136,18 @@
         };
 
 		const STEP = 1;
-        var Direction = {
-            LEFT: 0,
-            UP: 1,
-            RIGHT: 2,
-            DOWN: 3
-        };
-		
+		var Direction = {
+			LEFT: 0,
+			UP: 1,
+			RIGHT: 2,
+			DOWN: 3
+		};
+
 		//Modal Form
-		var FormTable = new bootstrap.Modal(document.getElementById('FormTable'), { keyboard: true });
-		
+		var FormTable = new bootstrap.Modal(document.getElementById('FormTable'), {
+			keyboard: true
+		});
+
 		//criando o canvas
 		var canvas = this.__canvas = new fabric.Canvas('viewport', {
 			height: 550,
@@ -142,7 +170,8 @@
 		fabric.Object.prototype.lockScalingY = true;
 
 		var deleteImg = document.createElement('img');
-		deleteImg.src = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
+		deleteImg.src =
+			"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
 
 		function renderIcon(icon) {
 			return function renderIcon(ctx, left, top, styleOverride, fabricObject) {
@@ -188,7 +217,7 @@
 		// Volta a opacidade da mesa ao sair
 		canvas.on('mouse:out', function (e) {
 			if (!e || !e.target) return;
-			
+
 			e.target.set('opacity', 1);
 			canvas.renderAll();
 		});
@@ -200,7 +229,13 @@
 
 			if (options && options.target) return;
 
-			drawTable({ "Id": 0, "Descricao" : "",  "X" : options.absolutePointer.x - 10, "Y" : options.absolutePointer.y - 10, "Color" : Color.PENDDING }, true);
+			drawTable({
+				"Id": 0,
+				"Descricao": "",
+				"X": options.absolutePointer.x - 10,
+				"Y": options.absolutePointer.y - 10,
+				"Color": Color.PENDDING
+			}, true);
 			create = true;
 		});
 
@@ -211,31 +246,41 @@
 		});
 
 		canvas.on({
-			'object:moving': function (e) { onIntersect(e.target);  },
-			'object:scaling': function (e) { onIntersect(e.target);  },
-			'object:scaled': function (opt) { log('object:scaled', opt) },
+			'object:moving': function (e) {
+				onIntersect(e.target);
+			},
+			'object:scaling': function (e) {
+				onIntersect(e.target);
+			},
+			'object:scaled': function (opt) {
+				log('object:scaled', opt)
+			},
 		});
 
 		canvas.on({
-			'selection:created': function (e) { console.log("Com objeto selecionado"); },
-			'selection:cleared': function (e) { console.log("Sem objeto selecionado"); },
+			'selection:created': function (e) {
+				console.log("Com objeto selecionado");
+			},
+			'selection:cleared': function (e) {
+				console.log("Sem objeto selecionado");
+			},
 			//'after:render': function (e) { console.log("renderizou"); }
 		});
 
 		/*FIM ADIÇÃO DE EVENTOS AO CANVAS*/
-		
+
 		/*INICIO EVENTOS*/
 		//Adiciona o evento double click em todos os elementos do canvas
 		//Abre o formulário para salvar a Mesa
 		window.fabric.util.addListener(canvas.upperCanvasEl, 'dblclick', function (event, self) {
-			if((canvas.getActiveObject() && canvas.getActiveObject().type == "circle") && !create){
+			if ((canvas.getActiveObject() && canvas.getActiveObject().type == "circle") && !create) {
 				var circle = canvas.getActiveObject();
-				$("#TitleForm").html((circle.get("Id") == 0)? "Criar Novo Assento" : "Editar Assento");
+				$("#TitleForm").html((circle.get("Id") == 0) ? "Criar Novo Assento" : "Editar Assento");
 				$("#CoordenadaX").val(circle.get("left"));
 				$("#CoordenadaY").val(circle.get("top"));
 				$("#CircleId").val(circle.get("Id"));
 				$("#Descricao").val(circle.get("Descricao"));
-				
+
 				FormTable.show();
 			}
 			create = false;
@@ -243,18 +288,18 @@
 
 		//criando evento do teclado: Move, Copy, Paste e Delete
 		window.fabric.util.addListener(document.body, 'keydown', function (options) {
-            if (options.repeat)  return;
-			
-            var key = options.which || options.keyCode; // key detection
-            if (key === 37) { // handle Left key
-                onMoveSelected(Direction.LEFT);
-            } else if (key === 38) { // handle Up key
-                onMoveSelected(Direction.UP);
-            } else if (key === 39) { // handle Right key
-                onMoveSelected(Direction.RIGHT);
-            } else if (key === 40) { // handle Down key
-                onMoveSelected(Direction.DOWN);
-            }
+			if (options.repeat) return;
+
+			var key = options.which || options.keyCode; // key detection
+			if (key === 37) { // handle Left key
+				onMoveSelected(Direction.LEFT);
+			} else if (key === 38) { // handle Up key
+				onMoveSelected(Direction.UP);
+			} else if (key === 39) { // handle Right key
+				onMoveSelected(Direction.RIGHT);
+			} else if (key === 40) { // handle Down key
+				onMoveSelected(Direction.DOWN);
+			}
 
 			//Copy - CTRL+C
 			if (event.ctrlKey && key === 67) {
@@ -265,10 +310,10 @@
 				paste();
 			}
 			//Delete
-			if(key === 46){
+			if (key === 46) {
 				deleteTable(canvas);
 			}
-        });
+		});
 
 		// Deleta a Mesa
 		function onDelete(eventData, transform) {
@@ -280,29 +325,39 @@
 		//Método utilizado para mover os objetos
 		function onMoveSelected(direction) {
 
-            var activeObject = canvas.getActiveObject();
+			var activeObject = canvas.getActiveObject();
 
-            if (activeObject != null) {
+			if (activeObject != null) {
 				var type = activeObject.type;
 				switch (direction) {
-					case Direction.LEFT: activeObject.left = activeObject.left - STEP; break;
-					case Direction.UP: activeObject.top =   activeObject.top - STEP; break;
-					case Direction.RIGHT: activeObject.left = activeObject.left + STEP; break;
-					case Direction.DOWN:  activeObject.top =   activeObject.top + STEP; break;
+					case Direction.LEFT:
+						activeObject.left = activeObject.left - STEP;
+						break;
+					case Direction.UP:
+						activeObject.top = activeObject.top - STEP;
+						break;
+					case Direction.RIGHT:
+						activeObject.left = activeObject.left + STEP;
+						break;
+					case Direction.DOWN:
+						activeObject.top = activeObject.top + STEP;
+						break;
 				}
 				activeObject.setCoords();
 				canvas.renderAll();
 
 				onIntersect(activeObject);
 				editTable(type == "activeSelection");
-            }
-        }
+			}
+		}
 
 		// Deixa vermelha a mesma que estiver sobrepondo, indicando que não deve colocar aí.
 		function onIntersect(targ) {
 
 			targ.setCoords();
-			var items = canvas.getObjects().filter(function(o){ return targ !== o; });
+			var items = canvas.getObjects().filter(function (o) {
+				return targ !== o;
+			});
 
 			var hit = false;
 			for (var i = 0, n = items.length; i < n; i++) {
@@ -311,27 +366,27 @@
 				if (targ.intersectsWithObject(m)) {
 					targ.set("fill", Color.INTERSECT);
 					hit = true;
-				} 
-				else {
+				} else {
 					if (!hit) {
 						console.log(targ.get("Ativo"));
-						targ.set("fill", targ.get("Id") === 0 ? Color.PENDDING  : targ.get("Ativo") ? Color.SAVED : Color.INATIVE );
+						targ.set("fill", targ.get("Id") === 0 ? Color.PENDDING : targ.get("Ativo") ? Color.SAVED : Color
+							.INATIVE);
 					}
 				}
 			}
 		}
 		/*FIM EVENTOS*/
 
-		
+
 
 		//INICIO FUNÇÕES CLIENT / SERVER
 		//Criar / Editar Mesa através do formulário
-		function saveTable(){
+		function saveTable() {
 			var obj = canvas.getActiveObject();
 			//implementar form para salvar dados no banco
 			//ao salvar subistituir a função "Math.random()" pelo id inserido no momento do post 
 
-			if(true){
+			if (true) {
 				obj.set('Id', Math.random());
 				obj.set('Descricao', $("#Descricao").val());
 				obj.set('Ativo', $("#Ativo").prop("checked"));
@@ -343,7 +398,7 @@
 		}
 
 		//Função criada para caso o usuário não salve a Mesa no servidor
-		function cancelSaveTable(){
+		function cancelSaveTable() {
 			var obj = canvas.getActiveObject();
 			onIntersect(obj);
 			FormTable.hide();
@@ -351,59 +406,61 @@
 
 		var timeout;
 		//Criar / Editar Mesa(s) ao movimentar
-		function editTable(multiple){
+		function editTable(multiple) {
 			let objects = [];
-			if(multiple)
-			{
+			if (multiple) {
 				canvas.getActiveObjects().forEach((obj) => {
-					objects.push({ "Id": obj.get('Id'), "X": obj.get('left'), "Y": obj.get('top') }); 
+					objects.push({
+						"Id": obj.get('Id'),
+						"X": obj.get('left'),
+						"Y": obj.get('top')
+					});
 				});
-			}
-			else
-			{
+			} else {
 				var activeObject = canvas.getActiveObject();
-				objects.push({ "Id": activeObject.get('Id'), "X": activeObject.get('left'), "Y": activeObject.get('top') }); 
+				objects.push({
+					"Id": activeObject.get('Id'),
+					"X": activeObject.get('left'),
+					"Y": activeObject.get('top')
+				});
 			}
 			console.log(objects);
 
-			if(timeout) {
+			if (timeout) {
 				clearTimeout(timeout);
 				timeout = null;
 			}
 
-			timeout = setTimeout(function(){
+			timeout = setTimeout(function () {
 				//Fazer a chamada post para atualização aqui, isso permitirar que somente o ultimo movimento seja salvo no banco de dados
 			}, 500);
 		}
 
 		//Excluir Mesa(s) 
-		function deleteTable(canvas){
+		function deleteTable(canvas) {
 			//implementar form para salvar dados no banco
-			if(canvas.getActiveObject()){
-				if(confirm("Deseja remover o(s) objeto(s) selecionado(s)?")){
+			if (canvas.getActiveObject()) {
+				if (confirm("Deseja remover o(s) objeto(s) selecionado(s)?")) {
 					var type = canvas.getActiveObject().type;
-					if(type === "circle"){
+					if (type === "circle") {
 						let id = canvas.getActiveObject().get("Id")
 						console.log(id);
 
 						//fazer uma requisição post se o resultado for verdadeiro remove os itens
-						if(true){
+						if (true) {
 							canvas.remove(canvas.getActiveObject());
 							canvas.requestRenderAll();
 						}
-					}
+					} else if (type === "activeSelection") {
 
-					else if(type === "activeSelection")
-					{
-						
 						let ids = [];
 						canvas.getActiveObjects().forEach((obj) => {
 							ids.push(obj.get("Id"));
 						});
 						console.log(ids);
-						
+
 						//fazer uma requisição post se o resultado for verdadeiro remove os itens
-						if(true){
+						if (true) {
 							canvas.getActiveObjects().forEach((obj) => {
 								canvas.remove(obj);
 							});
@@ -416,22 +473,94 @@
 		}
 
 		//Carregar mesas do banco de dados
-		function loadTable(){
+		function loadTable() {
 			//resultado que vai vir da requisição no servidor
 			let result = [];
-			result.push({ "Id": 1, "Descricao" : "Mesa 01",  "X" : 205, "Y" : 32, "Ativo" : false });
-			result.push({ "Id": 2, "Descricao" : "Mesa 02",  "X" : 205, "Y" : 75, "Ativo" : true });
-			result.push({ "Id": 3, "Descricao" : "Mesa 03",  "X" : 205, "Y" : 117, "Ativo" : false });
-			result.push({ "Id": 4, "Descricao" : "Mesa 04",  "X" : 263, "Y" : 32, "Ativo" : true });
-			result.push({ "Id": 5, "Descricao" : "Mesa 05",  "X" : 263, "Y" : 75, "Ativo" : false });
-			result.push({ "Id": 6, "Descricao" : "Mesa 03",  "X" : 263, "Y" : 117, "Ativo" : true });
-			result.push({ "Id": 7, "Descricao" : "Mesa 01",  "X" : 115, "Y" : 32, "Ativo" : false });
-			result.push({ "Id": 8, "Descricao" : "Mesa 02",  "X" : 115, "Y" : 75, "Ativo" : true });
-			result.push({ "Id": 9, "Descricao" : "Mesa 03",  "X" : 115, "Y" : 117, "Ativo" : false });
-			result.push({ "Id": 10, "Descricao" : "Mesa 04",  "X" : 170, "Y" : 32, "Ativo" : true });
-			result.push({ "Id": 11, "Descricao" : "Mesa 05",  "X" : 170, "Y" : 75, "Ativo" : false });
-			result.push({ "Id": 12, "Descricao" : "Mesa 03",  "X" : 170, "Y" : 117, "Ativo" : true });
-			
+			result.push({
+				"Id": 1,
+				"Descricao": "Mesa 01",
+				"X": 205,
+				"Y": 32,
+				"Ativo": false
+			});
+			result.push({
+				"Id": 2,
+				"Descricao": "Mesa 02",
+				"X": 205,
+				"Y": 75,
+				"Ativo": true
+			});
+			result.push({
+				"Id": 3,
+				"Descricao": "Mesa 03",
+				"X": 205,
+				"Y": 117,
+				"Ativo": false
+			});
+			result.push({
+				"Id": 4,
+				"Descricao": "Mesa 04",
+				"X": 263,
+				"Y": 32,
+				"Ativo": true
+			});
+			result.push({
+				"Id": 5,
+				"Descricao": "Mesa 05",
+				"X": 263,
+				"Y": 75,
+				"Ativo": false
+			});
+			result.push({
+				"Id": 6,
+				"Descricao": "Mesa 03",
+				"X": 263,
+				"Y": 117,
+				"Ativo": true
+			});
+			result.push({
+				"Id": 7,
+				"Descricao": "Mesa 01",
+				"X": 115,
+				"Y": 32,
+				"Ativo": false
+			});
+			result.push({
+				"Id": 8,
+				"Descricao": "Mesa 02",
+				"X": 115,
+				"Y": 75,
+				"Ativo": true
+			});
+			result.push({
+				"Id": 9,
+				"Descricao": "Mesa 03",
+				"X": 115,
+				"Y": 117,
+				"Ativo": false
+			});
+			result.push({
+				"Id": 10,
+				"Descricao": "Mesa 04",
+				"X": 170,
+				"Y": 32,
+				"Ativo": true
+			});
+			result.push({
+				"Id": 11,
+				"Descricao": "Mesa 05",
+				"X": 170,
+				"Y": 75,
+				"Ativo": false
+			});
+			result.push({
+				"Id": 12,
+				"Descricao": "Mesa 03",
+				"X": 170,
+				"Y": 117,
+				"Ativo": true
+			});
+
 			result.forEach((obj) => {
 				drawTable(obj, false);
 			});
@@ -440,71 +569,71 @@
 		//FIM FUNÇÕES CLIENT / SERVER
 
 		//Desenhar mesa na tela
-		function drawTable(obj, selectitem){
+		function drawTable(obj, selectitem) {
 			canvas.discardActiveObject();
 			var circle = new fabric.Circle({
 				radius: 10,
 				left: obj.X,
 				top: obj.Y,
-				fill: obj.Id == 0 ? Color.PENDDING : obj.Ativo ?  Color.SAVED : Color.INATIVE,
-				Id : obj.Id,
-				Ativo : obj.Ativo,
-				Descricao : obj.Descricao,
+				fill: obj.Id == 0 ? Color.PENDDING : obj.Ativo ? Color.SAVED : Color.INATIVE,
+				Id: obj.Id,
+				Ativo: obj.Ativo,
+				Descricao: obj.Descricao,
 				cornerSize: 10
 			});
-			
+
 			canvas.add(circle);
-			if(selectitem)
+			if (selectitem)
 				canvas.setActiveObject(circle);
 			canvas.renderAll();
 		}
 
 		var _clipboard = null;
-		function copy(){
-            _clipboard = null;
-			if(canvas.getActiveObject())
-			{
-                canvas.getActiveObject().clone(function(cloned) {
-                    _clipboard = cloned;
-                });
+
+		function copy() {
+			_clipboard = null;
+			if (canvas.getActiveObject()) {
+				canvas.getActiveObject().clone(function (cloned) {
+					_clipboard = cloned;
+				});
 			}
 		}
 
 		function paste() {
-            // clone again, so you can do multiple copies.
-            _clipboard.clone(function(clonedObj) {
-                canvas.discardActiveObject();
-                clonedObj.set({
-                    left: clonedObj.left + 15,
-                    top: clonedObj.top + 15,
+			// clone again, so you can do multiple copies.
+			_clipboard.clone(function (clonedObj) {
+				canvas.discardActiveObject();
+				clonedObj.set({
+					left: clonedObj.left + 15,
+					top: clonedObj.top + 15,
 					fill: Color.PENDDING,
-					Id : 0,
-					Ativo : true,
-					Descricao : '',
-                    evented: true,
-                });
-                if (clonedObj.type === 'activeSelection') {
-                    // active selection needs a reference to the canvas.
-                    clonedObj.canvas = canvas;
-                    clonedObj.forEachObject(function(obj) {
+					Id: 0,
+					Ativo: true,
+					Descricao: '',
+					evented: true,
+				});
+				if (clonedObj.type === 'activeSelection') {
+					// active selection needs a reference to the canvas.
+					clonedObj.canvas = canvas;
+					clonedObj.forEachObject(function (obj) {
 						obj.set("Id", 0);
 						obj.set("Descricao", '');
 						obj.set("Ativo", true);
 						obj.set("fill", Color.PENDDING);
-                        canvas.add(obj);
-                    });
-                    // this should solve the unselectability
-                    clonedObj.setCoords();
-                } else {
-                    canvas.add(clonedObj);
-                }
-                _clipboard.top += 15;
-                _clipboard.left += 15;
-                canvas.setActiveObject(clonedObj);
-                canvas.requestRenderAll();
-            });
-        }
-		
+						canvas.add(obj);
+					});
+					// this should solve the unselectability
+					clonedObj.setCoords();
+				} else {
+					canvas.add(clonedObj);
+				}
+				_clipboard.top += 15;
+				_clipboard.left += 15;
+				canvas.setActiveObject(clonedObj);
+				canvas.requestRenderAll();
+			});
+		}
+
 		// Evento de upar imagem da planta
 		document.getElementById('bg_image').addEventListener('change', function (e) {
 			canvas.setBackgroundColor('', canvas.renderAll.bind(canvas));
@@ -516,7 +645,7 @@
 				fabric.Image.fromURL(data, function (img) {
 					canvas.width = CANVAS_WIDTH;
 					document.getElementById("bg_image_label").style.visibility = 'hidden';
-					canvas.height =  (img.height * canvas.width / img.width);
+					canvas.height = (img.height * canvas.width / img.width);
 					canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
 						scaleX: canvas.width / img.width,
 						scaleY: canvas.height / img.height
@@ -528,10 +657,10 @@
 			canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 			loadTable();
 			//if(canvas.getZoom() != 1){
-				
+
 			//}
-			setTimeout(() => { 
-				resizeCanvas();  
+			setTimeout(() => {
+				resizeCanvas();
 			}, 100);
 		});
 
@@ -559,6 +688,7 @@
 
 		observeObj('mouseout');
 		addSeparator('log');
+
 		function observeObj(eventName) {
 			canvas.getObjects().forEach(function (o) {
 				o.on(eventName, function (opt) {
@@ -571,7 +701,8 @@
 		var clearBtn = document.getElementById('clearBtn');
 
 		function log(message, opt) {
-			if ((message === 'mouse:move' || message === 'mousemove' || message === 'mouse:move:before' || message === 'mousemove:before') || (message === 'dragover')) {
+			if ((message === 'mouse:move' || message === 'mousemove' || message === 'mouse:move:before' || message ===
+					'mousemove:before') || (message === 'dragover')) {
 				return;
 			}
 
@@ -602,7 +733,6 @@
 		function addSeparator(id) {
 			document.getElementById(id).appendChild(document.createElement('br'));
 		}
-
 	</script>
 </body>
 
