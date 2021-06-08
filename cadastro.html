@@ -135,11 +135,11 @@
 		//variáveis
 		const CANVAS_WIDTH = 1000;
 		var Color = {
-			PENDDING: '#ffdd00',
-			INTERSECT: "red",
-			SAVED: "#78BE78",
-			INATIVE: "gray"
-		};
+            PENDDING: '#ffdd00',
+            INTERSECT: "red",
+            SAVED: "#78BE78",
+			INATIVE: "#9BA5BE"
+        };
 
 		const STEP = 1;
 		var Direction = {
@@ -166,10 +166,10 @@
 			mb: false, // midle bottom
 			ml: false, // middle left
 			mr: false, // middle right
-			tl: true, //top left
-			tr: true, //top right
-			bl: true, //bottom left
-			br: true //bottom right
+			tl: false, //top left
+			tr: false, //top right
+			bl: false, //bottom left
+			br: false //bottom right
 		});
 		fabric.Object.prototype.hasRotatingPoint = false;
 		fabric.Object.prototype.lockScalingX = true;
