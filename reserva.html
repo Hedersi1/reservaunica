@@ -43,9 +43,9 @@
 						<li class="unavailable">Indisponível</li>
 					</ul>
 					<div>
-						<input type="date" id="date" name="trip-start" value="2021-06-09" min="2021-06-09" >
+						<input type="date" id="date" name="trip-start" value="2021-06-09" min="2021-06-09">
 					</div>
-					<div class="content w-100" >
+					<div class="content w-100">
 						<canvas id="viewport"></canvas>
 					</div>
 				</div>
@@ -65,10 +65,10 @@
 		});
 
 		var Color = {
-            UNAVAILABLE: '#9BA5BE',
-            AVAILABLE: "#78BE78",
+			UNAVAILABLE: '#9BA5BE',
+			AVAILABLE: "#78BE78",
 			MYRESERVE: "#64BEF0"
-        };
+		};
 
 		fabric.Object.prototype.transparentCorners = false;
 		fabric.Object.prototype.hasRotatingPoint = false;
@@ -78,19 +78,26 @@
 		fabric.Object.prototype.lockMovementX = true;
 		fabric.Object.prototype.lockMovementY = true;
 		canvas.selection = false;
-		
-		$("#date").change(function(){
+
+		$("#date").change(function () {
 			loadTable();
 		});
 
+		// Instância do TOOLTIP
+		var tooltip = new ToolTip(canvas, 3000);
+
 		canvas.on('mouse:over', function (e) {
 			if (!e || !e.target) return;
-			console.log("abrir reserva ou indisponibilidade!");
+
+			var user = e.targetReserva?.["Nome"] ?? '';
+
+			tooltip.setContent(e.target.Descricao, user);
+			tooltip.show(e);
 			canvas.renderAll();
 		});
 		canvas.on('mouse:out', function (e) {
 			if (!e || !e.target) return;
-			console.log("fechar reserva ou indisponibilidade!");
+			tooltip.hide(e);
 			canvas.renderAll();
 		});
 		canvas.on('selection:created', function (e) {
@@ -103,84 +110,214 @@
 			canvas.renderAll();
 		});
 
-
 		var idusuariologado = 15;
 		//Carregar mesas do banco de dados
-		function loadTable( ){
-			
+		function loadTable() {
+
 			//Limpa a seleção
 			canvas.discardActiveObject();
 
 			//Limpa os objetos do canvas
-			canvas.getObjects().forEach(function(o){
-				if(o.type === "circle"){
+			canvas.getObjects().forEach(function (o) {
+				if (o.type === "circle") {
 					canvas.remove(o);
 				}
 			});
 
 			//resultado que vai vir da requisição no servidor
 			let result = [];
-			result.push({ "Id": 1, "Descricao" : "Mesa 01",  "X" : 205, "Y" : 32, "Disponivel" : false});
-			result.push({ "Id": 2, "Descricao" : "Mesa 02",  "X" : 205, "Y" : 75, "Disponivel" : false , "Reserva" : {"IdReserva":10,"Nome": "João", "IdUsuario":10} });
-			result.push({ "Id": 3, "Descricao" : "Mesa 03",  "X" : 205, "Y" : 117, "Disponivel" : false });
-			result.push({ "Id": 4, "Descricao" : "Mesa 04",  "X" : 263, "Y" : 32, "Disponivel" : true });
-			result.push({ "Id": 5, "Descricao" : "Mesa 05",  "X" : 263, "Y" : 75, "Disponivel" : false });
-			result.push({ "Id": 6, "Descricao" : "Mesa 03",  "X" : 263, "Y" : 117, "Disponivel" : true });
-			result.push({ "Id": 7, "Descricao" : "Mesa 01",  "X" : 115, "Y" : 32, "Disponivel" : false });
-			result.push({ "Id": 8, "Descricao" : "Mesa 02",  "X" : 115, "Y" : 75, "Disponivel" : true });
-			result.push({ "Id": 9, "Descricao" : "Mesa 03",  "X" : 115, "Y" : 117, "Disponivel" : false });
-			result.push({ "Id": 10, "Descricao" : "Mesa 04",  "X" : 170, "Y" : 32, "Disponivel" : true });
-			result.push({ "Id": 11, "Descricao" : "Mesa 05",  "X" : 170, "Y" : 75, "Disponivel" : false });
-			result.push({ "Id": 12, "Descricao" : "Mesa 03",  "X" : 170, "Y" : 117, "Disponivel" : false , "Reserva" : {"IdReserva":11,"Nome": "João", "IdUsuario":15} });
-			result.push({ "Id": 12, "Descricao" : "Mesa 03",  "X" : 115, "Y" : 173, "Disponivel" : false , "Reserva" : {"IdReserva":11,"Nome": "João", "IdUsuario":15} });
-			result.push({ "Id": 12, "Descricao" : "Mesa 03",  "X" : 115, "Y" : 233, "Disponivel" : false , "Reserva" : {"IdReserva":11,"Nome": "João", "IdUsuario":15} });
-			result.push({ "Id": 12, "Descricao" : "Mesa 03",  "X" : 170, "Y" : 173, "Disponivel" : false , "Reserva" : {"IdReserva":11,"Nome": "João", "IdUsuario":15} });
-			result.push({ "Id": 12, "Descricao" : "Mesa 03",  "X" : 170, "Y" : 222, "Disponivel" : false , "Reserva" : {"IdReserva":11,"Nome": "João", "IdUsuario":15} });
-			
+			result.push({
+				"Id": 1,
+				"Descricao": "Mesa 01",
+				"X": 205,
+				"Y": 32,
+				"Disponivel": false
+			});
+			result.push({
+				"Id": 2,
+				"Descricao": "Mesa 02",
+				"X": 205,
+				"Y": 75,
+				"Disponivel": false,
+				"Reserva": {
+					"IdReserva": 10,
+					"Nome": "João",
+					"IdUsuario": 10
+				}
+			});
+			result.push({
+				"Id": 3,
+				"Descricao": "Mesa 03",
+				"X": 205,
+				"Y": 117,
+				"Disponivel": false
+			});
+			result.push({
+				"Id": 4,
+				"Descricao": "Mesa 04",
+				"X": 263,
+				"Y": 32,
+				"Disponivel": true
+			});
+			result.push({
+				"Id": 5,
+				"Descricao": "Mesa 05",
+				"X": 263,
+				"Y": 75,
+				"Disponivel": false
+			});
+			result.push({
+				"Id": 6,
+				"Descricao": "Mesa 03",
+				"X": 263,
+				"Y": 117,
+				"Disponivel": true
+			});
+			result.push({
+				"Id": 7,
+				"Descricao": "Mesa 01",
+				"X": 115,
+				"Y": 32,
+				"Disponivel": false
+			});
+			result.push({
+				"Id": 8,
+				"Descricao": "Mesa 02",
+				"X": 115,
+				"Y": 75,
+				"Disponivel": true
+			});
+			result.push({
+				"Id": 9,
+				"Descricao": "Mesa 03",
+				"X": 115,
+				"Y": 117,
+				"Disponivel": false
+			});
+			result.push({
+				"Id": 10,
+				"Descricao": "Mesa 04",
+				"X": 170,
+				"Y": 32,
+				"Disponivel": true
+			});
+			result.push({
+				"Id": 11,
+				"Descricao": "Mesa 05",
+				"X": 170,
+				"Y": 75,
+				"Disponivel": false
+			});
+			result.push({
+				"Id": 12,
+				"Descricao": "Mesa 17",
+				"X": 170,
+				"Y": 117,
+				"Disponivel": false,
+				"Reserva": {
+					"IdReserva": 11,
+					"Nome": "Leonador",
+					"IdUsuario": 15
+				}
+			});
+			result.push({
+				"Id": 12,
+				"Descricao": "Mesa 03",
+				"X": 115,
+				"Y": 173,
+				"Disponivel": false,
+				"Reserva": {
+					"IdReserva": 11,
+					"Nome": "João",
+					"IdUsuario": 15
+				}
+			});
+			result.push({
+				"Id": 12,
+				"Descricao": "Mesa 03",
+				"X": 115,
+				"Y": 233,
+				"Disponivel": false,
+				"Reserva": {
+					"IdReserva": 11,
+					"Nome": "João",
+					"IdUsuario": 15
+				}
+			});
+			result.push({
+				"Id": 12,
+				"Descricao": "Mesa 03",
+				"X": 170,
+				"Y": 173,
+				"Disponivel": false,
+				"Reserva": {
+					"IdReserva": 11,
+					"Nome": "João",
+					"IdUsuario": 15
+				}
+			});
+			result.push({
+				"Id": 12,
+				"Descricao": "Mesa 03",
+				"X": 170,
+				"Y": 222,
+				"Disponivel": false,
+				"Reserva": {
+					"IdReserva": 11,
+					"Nome": "João",
+					"IdUsuario": 15
+				}
+			});
+
 			result.forEach((obj) => {
 				drawTable(obj, false);
 			});
 		}
 
-		function drawTable(obj, selectitem){
+		function drawTable(obj, selectitem) {
 			canvas.discardActiveObject();
 			var circle = new fabric.Circle({
 				radius: 10,
 				left: obj.X,
 				top: obj.Y,
-				fill: (obj.Reserva && obj.Reserva.IdUsuario == idusuariologado ? Color.MYRESERVE : obj.Disponivel ?   Color.AVAILABLE : Color.UNAVAILABLE) ,
-				Id : obj.Id,
-				Ativo : obj.Ativo,
-				Descricao : obj.Descricao,
+				fill: (obj.Reserva && obj.Reserva.IdUsuario == idusuariologado ? Color.MYRESERVE : obj.Disponivel ?
+					Color.AVAILABLE : Color.UNAVAILABLE),
+				Id: obj.Id,
+				Ativo: obj.Ativo,
+				Descricao: obj.Descricao,
 				cornerSize: 10
 			});
-			
+
 			canvas.add(circle);
-			if(selectitem)
+			if (selectitem)
 				canvas.setActiveObject(circle);
+
 			canvas.renderAll();
 		}
 
-		function loadBackground(){
+		// Já carregar a imagem
+		//canvas.setBackgroundImage('assets/img/planta.png', canvas.renderAll.bind(canvas));
+
+		// Carregar imagem por input
+		function loadBackground() {
 			canvas.setBackgroundColor('', canvas.renderAll.bind(canvas));
 			canvas.setBackgroundImage(0, canvas.renderAll.bind(canvas));
 			fabric.Image.fromURL("assets/img/planta.png", function (img) {
 				canvas.width = 1000;
-				canvas.height =  (img.height * canvas.width / img.width);
+				canvas.height = (img.height * canvas.width / img.width);
 				canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
 					scaleX: canvas.width / img.width,
 					scaleY: canvas.height / img.height
 				});
-				
+
 			});
 			canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 			loadTable();
-			setTimeout(() => { 
-				resizeCanvas();  
+			setTimeout(() => {
+				resizeCanvas();
 			}, 100);
 		};
 
-		//canvas.setBackgroundImage('assets/img/planta.png', canvas.renderAll.bind(canvas));
 		function resizeCanvas() {
 			const outerCanvasContainer = $('.content')[0];
 
@@ -199,6 +336,62 @@
 
 		$(window).resize(resizeCanvas);
 		loadBackground();
+
+		// Componente Tooltip
+		function ToolTip(canvas, timeout) {
+			myCanvas = document.querySelector("canvas");
+
+			var me = this,
+				div = document.createElement("div"),
+				parent = myCanvas.parentNode,
+				visible = false;
+
+			div.classList.add('label-tooltip');
+
+			// Mostra o tool-tip
+			this.show = function (e) {
+				var pos = getPos(e.e);
+
+				if (!visible) {
+					visible = true;
+					setDivPos(pos);
+					parent.appendChild(div);
+				}
+			}
+
+			// Esconde o tooltip
+			this.hide = function () {
+				visible = false;
+				parent.removeChild(div);
+			}
+
+			// Obtém a posição do mouse
+			function getPos(e) {
+				return {
+					x: e.clientX,
+					y: e.clientY
+				}
+			}
+
+			// Define o conteúdo de texto
+			this.setContent = function (table, user) {
+				let content = '-';
+				if (table) content = table;
+				if (user) content = content + '<br>' + user;
+				div.innerHTML = content;
+			}
+
+			// Atualize e ajuste a posição div, se necessário (ancorar em um canto diferente, etc.)
+			function setDivPos(pos) {
+				if (visible) {
+					if (pos.x < 0) pos.x = 0;
+					if (pos.y < 0) pos.y = 0;
+
+					div.style.left = pos.x + "px";
+					div.style.top = pos.y + "px";
+				}
+			}
+		}
 	</script>
 </body>
 
