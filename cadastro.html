@@ -69,6 +69,12 @@
 					<div class="content w-100">
 						<canvas id="viewport"></canvas>
 					</div>
+					<ul class="painel-subtitle mt-3 mb-3">
+						<li class="avaible">Disponível</li>
+						<li class="pending">Pendente</li>
+						<li class="blocked">Bloqueado</li>
+						<li class="unavailable">Inativo</li>
+					</ul>
 					<button class="btn mt-1" onclick="showLogs()">Logs</button>
 				</div>
 				<div id="log" class="log-painel mt-5" style="display: none;">
@@ -129,7 +135,7 @@
 		//variáveis
 		const CANVAS_WIDTH = 1000;
 		var Color = {
-            PENDDING: '#ffdd00',
+            PENDDING: '#ebb367',
             INTERSECT: "red",
             SAVED: "#78BE78",
 			INATIVE: "#9BA5BE"

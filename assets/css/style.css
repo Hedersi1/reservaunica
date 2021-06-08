@@ -341,6 +341,15 @@ footer {
   color: #9BA5BE;
 }
 
+.painel-subtitle li.pending {
+  color: #ebb367;
+}
+
+.painel-subtitle li.blocked {
+  color: #dd799a;
+}
+
+
 .canvas-container {
   margin: auto;
 }
@@ -488,4 +497,52 @@ footer {
 .check-button input:checked~.check-title.btn-yellow {
   background-color: #ebb367;
   box-shadow: 0 6px #f4dbb5;
+}
+
+.label-tooltip {
+  background-color: white;
+  -webkit-box-shadow: 2px 2px 28px -12px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 2px 2px 28px -12px rgba(0, 0, 0, 0.75);
+  box-shadow: 2px 2px 28px -12px rgba(0, 0, 0, 0.75);
+  width: 150px;
+  padding: 1rem;
+  border-radius: 10px;
+  pointer-events: none;
+  position: fixed;
+  -webkit-animation-duration: 400ms;
+  animation-duration: 400ms;
+  -webkit-animation-duration: 400ms;
+  animation-duration: 400ms;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: fadeInUp;
+  animation-name: fadeInUp;
+}
+
+@-webkit-keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
 }
