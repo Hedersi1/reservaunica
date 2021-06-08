@@ -74,7 +74,13 @@
 				<div class="mb-12">
 				  <label for="CoordenadaX" class="form-label">Coordenada Y</label>
 				  <input type="text"  class="form-control" id="CoordenadaY" readonly="readonly"  ></input>
-				</div>				
+				</div>			
+				<div class="mb-12">
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" id="Ativo" checked>
+						<label class="form-check-label" for="Ativo">Mesa Ativa?</label>
+					</div>
+				</div>	
 			</form>
 		  </div>
 		  <div class="modal-footer">
@@ -84,6 +90,7 @@
 		</div>
 	  </div>
 	</div>
+
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"
 		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -95,10 +102,12 @@
 		
 		//variáveis
 		const STEP = 1;
+		const CANVAS_WIDTH = 1000;
 		var Color = {
             PENDDING: '#ffdd00',
             INTERSECT: "red",
-            SAVED: "#78BE78"
+            SAVED: "#78BE78",
+			INATIVE: "gray"
         };
 
         var Direction = {
@@ -113,8 +122,8 @@
 		
 		//criando o canvas
 		var canvas = this.__canvas = new fabric.Canvas('viewport', {
-			height: 539,
-			width: 958
+			height: 550,
+			width: CANVAS_WIDTH
 		});
 
 		fabric.Object.prototype.setControlsVisibility({
@@ -197,19 +206,7 @@
 
 			if (options && options.target) return;
 
-			var circle = new fabric.Circle({
-				radius: 10,
-				left: options.absolutePointer.x - 10,
-				top: options.absolutePointer.y - 10,
-				fill: Color.PENDDING,
-				Id : 0,
-				Descricao : '',
-				cornerSize: 10
-			});
-			
-			canvas.add(circle);
-			canvas.setActiveObject(circle);
-			canvas.renderAll();
+			drawTable({ "Id": 0, "Descricao" : "",  "X" : options.absolutePointer.x - 10, "Y" : options.absolutePointer.y - 10, "Color" : Color.PENDDING }, true);
 			create = true;
 		});
 
@@ -320,7 +317,7 @@
 				} 
 				else {
 					if (!hit) {
-						targ.set("fill", targ.get("Id") === 0 ? Color.PENDDING : Color.SAVED);
+						targ.set("fill", targ.get("Id") === 0 ? Color.PENDDING  : targ.get("Ativo") ? Color.SAVED : Color.INATIVE );
 					}
 				}
 			}
@@ -374,6 +371,7 @@
 			if(true){
 				obj.set('Id', Math.random());
 				obj.set('Descricao', $("#Descricao").val());
+				obj.set('Ativo', $("#Ativo").prop("checked"));
 			}
 			//se não conseguir salvar e o objeto ainda não foi salvo no banco, remover da tela
 			onIntersect(obj);
@@ -453,8 +451,43 @@
 				}
 			}
 		}
+
+		//Carregar mesas do banco de dados
+		function loadTable(){
+			//resultado que vai vir da requisição no servidor
+			let result = [];
+			result.push({ "Id": 1, "Descricao" : "Mesa 01",  "X" : 205, "Y" : 32, "Ativa" : false });
+			result.push({ "Id": 2, "Descricao" : "Mesa 02",  "X" : 205, "Y" : 75, "Ativa" : true });
+			result.push({ "Id": 3, "Descricao" : "Mesa 03",  "X" : 205, "Y" : 117, "Ativa" : false });
+			result.push({ "Id": 4, "Descricao" : "Mesa 04",  "X" : 263, "Y" : 32, "Ativa" : true });
+			result.push({ "Id": 5, "Descricao" : "Mesa 05",  "X" : 263, "Y" : 75, "Ativa" : false });
+			result.push({ "Id": 6, "Descricao" : "Mesa 03",  "X" : 263, "Y" : 117, "Ativa" : true });
+			
+			result.forEach((obj) => {
+				drawTable(obj, false);
+			});
+		}
+
 		//FIM FUNÇÕES CLIENT / SERVER
 
+		//Desenhar mesa na tela
+		function drawTable(obj, selectitem){
+			canvas.discardActiveObject();
+			var circle = new fabric.Circle({
+				radius: 10,
+				left: obj.X,
+				top: obj.Y,
+				fill: obj.Id == 0 ? Color.PENDDING : obj.Ativa ?  Color.SAVED : Color.INATIVE,
+				Id : obj.Id,
+				Descricao : obj.Descricao,
+				cornerSize: 10
+			});
+			
+			canvas.add(circle);
+			if(selectitem)
+				canvas.setActiveObject(circle);
+			canvas.renderAll();
+		}
 
 		var _clipboard = null;
 		function copy(){
@@ -485,6 +518,7 @@
                     clonedObj.forEachObject(function(obj) {
 						obj.set("Id", 0);
 						obj.set("Descricao", '');
+						obj.set("Ativo", 'True');
 						obj.set("fill", Color.PENDDING);
                         canvas.add(obj);
                     });
@@ -509,9 +543,8 @@
 			reader.onload = function (f) {
 				var data = f.target.result;
 				fabric.Image.fromURL(data, function (img) {
+					canvas.width = CANVAS_WIDTH;
 					document.getElementById("bg_image_label").style.visibility = 'hidden';
-					console.log(img);
-					console.log(canvas);
 					canvas.height =  (img.height * canvas.width / img.width);
 					canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
 						scaleX: canvas.width / img.width,
@@ -521,10 +554,14 @@
 			};
 			reader.readAsDataURL(file);
 			canvas.requestRenderAll();
-			if(canvas.getZoom() != 1){
-				canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-			}
-			setTimeout(() => { resizeCanvas();  }, 100);
+			canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+			loadTable();
+			//if(canvas.getZoom() != 1){
+				
+			//}
+			setTimeout(() => { 
+				resizeCanvas();  
+			}, 100);
 		});
 
 		// TODO: redimensionar a imagem para um tamanho mínimo.
