@@ -17,7 +17,7 @@
 			<div class="dropdown-primary dropdown">
 				<a class="nav-link dropdown-toggle menu-action" href="#" id="userMenu" role="button"
 					data-bs-toggle="dropdown" aria-expanded="false"><img class="avatar img-responsive"
-						src="assets/img/avatar.png" alt="avatar"> Olá, Tássio!</a>
+						src="assets/img/avatar.png" alt="avatar"> Olá, Tassio!</a>
 				<ul class="dropdown-menu" aria-labelledby="userMenu">
 					<li>
 						<a class="dropdown-item" href="#">Meus Dados</a>
@@ -52,13 +52,45 @@
 			</div>
 		</main>
 	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="FormTable" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="TitleForm">Reservar Mesa</h5>
+				</div>
+				<div class="modal-body">
+					<form>
+						<input type="hidden" id="IdMesa">
+						<div class="mb-12">
+							<label for="Usuario" class="form-label">Usuário</label>
+							<input type="text" class="form-control" readonly="readonly" id="Usuario" required="Obrigatório" >
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">Close</button>
+					<button type="button" onclick="confirm()" class="btn btn-primary">Confirmar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"
 		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 	<script src="assets/bootstrap/js/bootstrap.min.js">
 	</script>
 	<script src="https://kit.fontawesome.com/4a72eb39d8.js" crossorigin="anonymous"></script>
-	<script src="assets/js/fabric.min.js"></script>
+	<!-- <script src="assets/js/fabric.min.js"></script> -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/3.6.0/fabric.min.js"></script>
 	<script>
+
+		//Modal Form
+		var FormTable = new bootstrap.Modal(document.getElementById('FormTable'), {
+			keyboard: true
+		});
+
 		var canvas = this.__canvas = new fabric.Canvas('viewport', {
 			height: 550,
 			width: 1000
@@ -81,7 +113,12 @@
 		canvas.hoverCursor = 'pointer';
 		
 		$("#date").change(function(){
-			loadTable();
+			clearTable();
+
+			//essa função só está dentro de um setTimeout para simular o apagar e recriar...
+			setTimeout(function () {
+				loadTable();
+			}, 500);
 		});
 
 		// Instância do TOOLTIP
@@ -90,9 +127,7 @@
 		canvas.on('mouse:over', function (e) {
 			if (!e || !e.target) return;
 
-			var user = e.targetReserva?.["Nome"] ?? '';
-
-			tooltip.setContent(e.target.Descricao, user);
+			tooltip.setContent(e.target.Obj);
 			tooltip.show(e);
 			canvas.renderAll();
 		});
@@ -101,29 +136,38 @@
 			tooltip.hide(e);
 			canvas.renderAll();
 		});
-		canvas.on('selection:created', function (e) {
-			if (!e || !e.target) return;
-			console.log("abrir o formulário!");
+		
+		canvas.on('selection:created', selectItem);
+		canvas.on('selection:updated', selectItem);
+		function selectItem (e) {
+			if (!e || !e.target || !e.target.Obj.Disponivel || e.target.Obj.Reserva) return;
+
+			$("#IdMesa").val(e.target.Id);
+			$("#Usuario").val("Gustavo Lopes");
+			FormTable.show();
 			canvas.renderAll();
-		});
+		}
+		
 		canvas.on('selection:cleared', function (e) {
 			console.log("fechar o formulário!");
-			canvas.renderAll();
+			//canvas.renderAll();
 		});
+
+		function clearTable(){
+			//Limpa a seleção
+			canvas.discardActiveObject();
+
+			var objects = canvas.getObjects();
+			for(var i = 0; i < objects.length; i++){
+				//console.log(objects[i]);     
+				canvas.remove(objects[i]);
+			}
+			canvas.renderAll();
+		}
 
 		var idusuariologado = 15;
 		//Carregar mesas do banco de dados
 		function loadTable() {
-
-			//Limpa a seleção
-			canvas.discardActiveObject();
-
-			//Limpa os objetos do canvas
-			canvas.getObjects().forEach(function (o) {
-				if (o.type === "circle") {
-					canvas.remove(o);
-				}
-			});
 
 			//resultado que vai vir da requisição no servidor
 			let result = [];
@@ -253,8 +297,9 @@
 				"Disponivel": false,
 				"Reserva": {
 					"IdReserva": 11,
-					"Nome": "João",
-					"IdUsuario": 15
+					"Nome": "Tassio Seiji",
+					"IdUsuario": 15,
+					"Imagem": "assets/img/usuario_tassio.png"
 				}
 			});
 			result.push({
@@ -265,8 +310,9 @@
 				"Disponivel": false,
 				"Reserva": {
 					"IdReserva": 11,
-					"Nome": "João",
-					"IdUsuario": 15
+					"Nome": "Gustavo Lopes",
+					"IdUsuario": 15,
+					"Imagem": "assets/img/usuario_gus.png"
 				}
 			});
 
@@ -275,25 +321,92 @@
 			});
 		}
 
-		function drawTable(obj, selectitem) {
-			canvas.discardActiveObject();
-			var circle = new fabric.Circle({
-				radius: 10,
-				left: obj.X,
-				top: obj.Y,
-				fill: (obj.Reserva && obj.Reserva.IdUsuario == idusuariologado ? Color.MYRESERVE : obj.Disponivel ?
-					Color.AVAILABLE : Color.UNAVAILABLE),
-				Id: obj.Id,
-				Ativo: obj.Ativo,
-				Descricao: obj.Descricao,
-				cornerSize: 10
+		function confirm(){
+			// retorno que é para vir do post
+			var retorno = {
+				"Id": 12,
+				"Descricao": "Mesa 03",
+				"X": 170,
+				"Y": 222,
+				"Disponivel": false,
+				"Reserva": {
+					"IdReserva": 11,
+					"Nome": "Gustavo Lopes",
+					"IdUsuario": 15,
+					"Imagem": "assets/img/usuario_gus.png"
+				}
+			};
+			console.log(retorno);
+
+			canvas.getObjects().forEach((mesa) => {
+				if(mesa.get("Id") == $("#IdMesa").val()){
+					//remover esse código daqui
+					retorno.X = mesa.Obj.X
+					retorno.Y = mesa.Obj.Y
+					retorno.Descricao = mesa.Obj.Descricao
+					//até aqui
+					canvas.remove(mesa);
+				}
 			});
 
-			canvas.add(circle);
-			if (selectitem)
-				canvas.setActiveObject(circle);
+			drawTable(retorno, false);
+			FormTable.hide()
+		}
 
-			canvas.renderAll();
+		function drawTable(obj, selectitem) {
+			canvas.discardActiveObject();
+			console.log(obj);
+			if(obj && obj.Reserva && obj.Reserva.Imagem){
+				fabric.Image.fromURL(obj.Reserva.Imagem, function(img) {
+					img.set({
+						left: obj.X,
+						top: obj.Y,
+						scaleX: 30 /  img.width,
+						scaleY: 30 /  img.height,
+						Id: obj.Id,
+						Obj: obj,
+						clipTo: roundedCorners.bind(img)
+					});
+					canvas.add(img)
+					if (selectitem)
+						canvas.setActiveObject(img);
+					canvas.renderAll();
+				});
+			}
+			else
+			{
+				var circle = new fabric.Circle({
+					radius: 12,
+					left: obj.X,
+					top: obj.Y,
+					fill: (obj.Reserva && obj.Reserva.IdUsuario == idusuariologado ? Color.MYRESERVE : obj.Disponivel ?
+						Color.AVAILABLE : Color.UNAVAILABLE),
+					Id: obj.Id,
+					Obj: obj,
+					cornerSize: 10
+				});
+
+				canvas.add(circle);
+				
+				if (selectitem)
+					canvas.setActiveObject(circle);
+
+				canvas.renderAll();
+			}
+		}
+
+		function roundedCorners(ctx) {
+			var rect = new fabric.Rect({
+				left:0,
+				top:0,
+				rx:100 / this.scaleX,
+				ry:100 / this.scaleY,
+				width:this.width,
+				height:this.height,
+				stroke : Color.MYRESERVE,
+				strokeWidth : 2
+			});
+			rect._render(ctx, false);
 		}
 
 		// Já carregar a imagem
@@ -375,10 +488,11 @@
 			}
 
 			// Define o conteúdo de texto
-			this.setContent = function (table, user) {
+			this.setContent = function (table) {
 				let content = '-';
-				if (table) content = table;
-				if (user) content = content + '<br>' + user;
+				if (table) content = table.Descricao;
+				if (!table.Disponivel && !table.Reserva) content = content + '<br><span style="color:red">Indisponível</span>';
+				if (table.Reserva) content = content + '<br>' + table.Reserva.Nome ;
 				div.innerHTML = content;
 			}
 
