@@ -18,9 +18,9 @@ Para rodar o projeto basta abrir as páginas HTML com duplo click em um navegado
 
 ## 🚀 Projetos Futuros
 - Com o plug-in utilizado poderá ainda ser implementado uma interface de criação das plantas na própria ferramenta.
+  - Caso o cliente não possua a planta baixa, seria possível um desenho do escritório ou da sala.
 
-
-<!-- ![alt text](https://github.com/Hedersi1/reservaunica/blob/[branch]/image.jpg?raw=true) -->
+![alt text](https://github.com/Hedersi1/reservaunica/blob/96ee636899b631cb3e1972424f5eda6ba8003aa9/assets/extra/criar_planta.png?raw=true)
 
 ## 👨‍💻 Créditos
 
