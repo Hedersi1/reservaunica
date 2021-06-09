@@ -16,6 +16,9 @@ Para rodar o projeto basta abrir as páginas HTML com duplo click em um navegado
 - Caixa de ferramentas para navegação e atalhos via teclado e mouse.
 - **BÔNUS**: diversos componentes extras de frontend (visando usabilidade).
 
+## 🚀 Projetos Futuros
+- Com o plug-in utilizado poderá ainda ser implementado uma interface de criação das plantas na própria ferramenta.
+
 ## 👨‍💻 Créditos
 
 Heder John e Gustavo Figueira.
