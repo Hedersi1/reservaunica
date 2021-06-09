@@ -425,29 +425,6 @@ footer {
   -ms-user-select: none;
   user-select: none;
   transition: all 0.2s ease-in-out;
-}
-
-.check-button:hover {
-  bottom: 2px;
-}
-
-.check-button input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.check-button i {
-  padding-right: 1rem;
-}
-
-.check-title {
-  padding: 0.5rem 1.5rem;
-  font-size: 18px;
-  transition: all 0.2s ease-in-out;
-}
-
-.check-button:hover input~.check-title {
   background-color: #2196F3;
   border-radius: 10px;
   padding: 0.5rem 1.5rem;
@@ -456,47 +433,60 @@ footer {
   font-weight: bold;
   background-color: #f79159;
   box-shadow: 0 4px #f57128;
+  border: none;
 }
 
-.check-button input:checked~.check-title {
-  background-color: #2196F3;
-  border-radius: 10px;
-  padding: 0.5rem 1.5rem;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  background-color: #f79159;
-  box-shadow: 0 6px #f57128;
+.check-button:hover.active {
+  bottom: 2px;
 }
 
-.check-button:hover input~.check-title.btn-blue {
+.check-button.active {
+  bottom: 8px;
+}
+
+.check-button i {
+  padding-right: 1rem;
+}
+
+.check-button:hover.btn-green.active {
+  background-color: #63b372;
+  box-shadow: 0 4px #94cf9c;
+}
+
+.check-button.btn-green {
+  background-color: #63b372;
+  box-shadow: 0 6px #94cf9c;
+}
+
+
+.check-button:hover.btn-blue.active {
   background-color: #67bfc8;
-  box-shadow: 0 4px #aeced5;
+  box-shadow: 0 4px #5aaab3;
 }
 
-.check-button input:checked~.check-title.btn-blue {
+.check-button.btn-blue {
   background-color: #67bfc8;
-  box-shadow: 0 6px #aeced5;
+  box-shadow: 0 6px #5aaab3;
 }
 
-.check-button:hover input~.check-title.btn-red {
+.check-button:hover.btn-red.active {
   background-color: #dd799a;
   box-shadow: 0 4px #e49bb4;
 }
 
-.check-button input:checked~.check-title.btn-red {
+.check-button.btn-red {
   background-color: #dd799a;
   box-shadow: 0 6px #e49bb4;
 }
 
-.check-button:hover input~.check-title.btn-yellow {
-  background-color: #ebb367;
-  box-shadow: 0 4px #f4dbb5;
+.check-button:hover.btn-yellow.active {
+  background-color: #f0af57;
+  box-shadow: 0 4px #d7a25a;
 }
 
-.check-button input:checked~.check-title.btn-yellow {
-  background-color: #ebb367;
-  box-shadow: 0 6px #f4dbb5;
+.check-button.btn-yellow {
+  background-color: #f0af57;
+  box-shadow: 0 6px #d7a25a;
 }
 
 .label-tooltip {
