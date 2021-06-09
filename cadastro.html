@@ -37,8 +37,8 @@
 		<main class="admin__main">
 			<div class="container">
 				<div class="row" style="text-align: center;">
-					<button type="button" id="Buttom0" onclick="buttonsAction(Buttons.SELECT)" class="check-button btn btn-blue" data-bs-toggle="button" autocomplete="off"><i class="fas fa-mouse-pointer"></i>Selecionar</button>
-					<button type="button" id="Buttom1" onclick="buttonsAction(Buttons.ADD)" class="check-button btn btn-green" data-bs-toggle="button" autocomplete="off"><i class="fas fa-plus"></i>Criar Mesa</button>
+					<button type="button" id="Buttom0" onclick="buttonsAction(Buttons.SELECT)" class="check-button btn btn-blue" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-mouse-pointer"></i>Selecionar</button>
+					<button type="button" id="Buttom1" onclick="buttonsAction(Buttons.ADD)" class="check-button btn btn-green" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-plus"></i>Criar Mesa</button>
 					<button type="button" id="Buttom2" onclick="buttonsAction(Buttons.EDIT)" class="check-button btn btn-yellow" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-edit"></i>Editar</button>
 					<button type="button" id="Buttom3" onclick="buttonsAction(Buttons.DELETE)" class="check-button btn btn-red" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-times-circle"></i>Remover</button>
 					<button type="button" id="Buttom5" onclick="buttonsAction(Buttons.COPY)" class="check-button btn" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-copy"></i>Copiar</button>
@@ -113,6 +113,7 @@
 	</script>
 	<script src="https://kit.fontawesome.com/4a72eb39d8.js" crossorigin="anonymous"></script>
 	<script src="assets/js/fabric.min.js"></script>
+	<script src="assets/js/mesas.js"></script>
 	<script>
 		//variáveis
 		const CANVAS_WIDTH = 1000;
@@ -268,6 +269,9 @@
 				$("#Buttom" + Buttons.COPY).prop("disabled", true);
 				$("#Buttom" + Buttons.DELETE).prop("disabled", true);
 				$("#Buttom" + Buttons.EDIT).prop("disabled", true);
+				canvas.getObjects().forEach(function(obj){
+					onIntersect(obj);
+				});
 			},
 			'mouse:up':function (options) {
 				if(SelectedButon == Buttons.ADD && !create)
@@ -395,9 +399,7 @@
 					hit = true;
 				} else {
 					if (!hit) {
-						console.log(targ.get("Ativo"));
-						targ.set("fill", targ.get("Id") === 0 ? Color.PENDDING : targ.get("Ativo") ? Color.SAVED : Color
-							.INATIVE);
+						targ.set("fill", targ.get("Id") === 0 ? Color.PENDDING : targ.get("Ativo") ? Color.SAVED : Color.INATIVE);
 					}
 				}
 			}
@@ -502,91 +504,13 @@
 		//Carregar mesas do banco de dados
 		function loadTable() {
 			//resultado que vai vir da requisição no servidor
-			let result = [];
-			result.push({
-				"Id": 1,
-				"Descricao": "Mesa 01",
-				"X": 205,
-				"Y": 32,
-				"Ativo": false
-			});
-			result.push({
-				"Id": 2,
-				"Descricao": "Mesa 02",
-				"X": 205,
-				"Y": 75,
-				"Ativo": true
-			});
-			result.push({
-				"Id": 3,
-				"Descricao": "Mesa 03",
-				"X": 205,
-				"Y": 117,
-				"Ativo": false
-			});
-			result.push({
-				"Id": 4,
-				"Descricao": "Mesa 04",
-				"X": 263,
-				"Y": 32,
-				"Ativo": true
-			});
-			result.push({
-				"Id": 5,
-				"Descricao": "Mesa 05",
-				"X": 263,
-				"Y": 75,
-				"Ativo": false
-			});
-			result.push({
-				"Id": 6,
-				"Descricao": "Mesa 03",
-				"X": 263,
-				"Y": 117,
-				"Ativo": true
-			});
-			result.push({
-				"Id": 7,
-				"Descricao": "Mesa 01",
-				"X": 115,
-				"Y": 32,
-				"Ativo": false
-			});
-			result.push({
-				"Id": 8,
-				"Descricao": "Mesa 02",
-				"X": 115,
-				"Y": 75,
-				"Ativo": true
-			});
-			result.push({
-				"Id": 9,
-				"Descricao": "Mesa 03",
-				"X": 115,
-				"Y": 117,
-				"Ativo": false
-			});
-			result.push({
-				"Id": 10,
-				"Descricao": "Mesa 04",
-				"X": 170,
-				"Y": 32,
-				"Ativo": true
-			});
-			result.push({
-				"Id": 11,
-				"Descricao": "Mesa 05",
-				"X": 170,
-				"Y": 75,
-				"Ativo": false
-			});
-			result.push({
-				"Id": 12,
-				"Descricao": "Mesa 03",
-				"X": 170,
-				"Y": 117,
-				"Ativo": true
-			});
+			
+			// $.getJSON("assets/js/mesas.json", function(json) {
+			// 	console.log(json); // this will show the info it in firebug console
+			// 	json.forEach((obj) => {
+			// 		drawTable(obj, false);
+			// 	});
+			// });
 
 			result.forEach((obj) => {
 				drawTable(obj, false);
@@ -691,7 +615,6 @@
 					// code block
 			} 
 		}
-		buttonsAction(Buttons.SELECT);
 
 		// Evento de upar imagem da planta
 		document.getElementById('bg_image').addEventListener('change', function (e) {
@@ -715,9 +638,9 @@
 			canvas.requestRenderAll();
 			canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 			loadTable();
-			//if(canvas.getZoom() != 1){
-
-			//}
+			$("#Buttom" + Buttons.SELECT).prop("disabled", false);
+			$("#Buttom" + Buttons.ADD).prop("disabled", false);
+			buttonsAction(Buttons.SELECT);
 			setTimeout(() => {
 				resizeCanvas();
 			}, 100);
