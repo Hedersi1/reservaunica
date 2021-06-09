@@ -41,7 +41,7 @@
       <h4 class="mb-5">📅 Reservas para <b>hoje</b></h4>
       <div class="dashboard">
         <div class="dashboard__item">
-          <div class="card">
+          <div class="card" onclick="reserva()">
             <span>Leonardo</span>
             <small>Mesa 17</small>
           </div>
@@ -61,6 +61,10 @@
   <script>
     function cadastro() {
       window.location = 'cadastro.html';
+    }
+
+    function reserva() {
+      window.location = 'reserva.html';
     }
   </script>
 </body>
