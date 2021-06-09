@@ -19,13 +19,13 @@ Para rodar o projeto basta abrir as páginas HTML com duplo click em um navegado
 ## Capturas de Tela da aplicação
 
 **Tela de Cadastro**
-![alt Tela de Cadastro](https://github.com/Hedersi1/reservaunica/blob/96ee636899b631cb3e1972424f5eda6ba8003aa9/assets/extra/cadastro.png?raw=true)
+![Tela de Cadastro](https://github.com/Hedersi1/reservaunica/blob/271f278d0ecc577e35bd30d730b0adb380cf11c7/assets/extra/cadastro.png?raw=true)
 
 **Tela de Reserva**
-![alt Tela de Reserva](https://github.com/Hedersi1/reservaunica/blob/96ee636899b631cb3e1972424f5eda6ba8003aa9/assets/extra/reserva.png?raw=true)
+![Tela de Reserva](https://github.com/Hedersi1/reservaunica/blob/271f278d0ecc577e35bd30d730b0adb380cf11c7/assets/extra/reserva.png?raw=true)
 
 **Tela de Início**
-![alt Inicio](https://github.com/Hedersi1/reservaunica/blob/96ee636899b631cb3e1972424f5eda6ba8003aa9/assets/extra/index.png?raw=true)
+![Inicio](https://github.com/Hedersi1/reservaunica/blob/271f278d0ecc577e35bd30d730b0adb380cf11c7/assets/extra/index.png?raw=true)
 
 ## 🚀 Projetos Futuros
 - Incluir a funcionalidade de desfazer (ctrl + z) e refazer (ctrol + y) ações no processo configuração da planta.
