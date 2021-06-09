@@ -36,31 +36,13 @@
 		</header>
 		<main class="admin__main">
 			<div class="container">
-				<div class="row">
-					<label class="check-button">
-						<input type="radio" checked="checked" id="selectBtn" name="radio">
-						<span class="check-title"><i class="fas fa-mouse-pointer"></i>Selecionar</span>
-					</label>
-					<label class="check-button">
-						<input type="radio"  id="insertBtn" name="radio">
-						<span class="check-title btn-blue"><i class="fas fa-plus"></i>Criar Mesa</span>
-					</label>
-					<label class="check-button">
-						<input type="radio"  id="removeBtn" name="radio">
-						<span class="check-title btn-red"><i class="fas fa-times-circle"></i>Remover</span>
-					</label>
-					<label class="check-button">
-						<input type="radio"  id="moveBtn" name="radio">
-						<span class="check-title btn-yellow"><i class="fas fa-arrows-alt"></i>Mover</span>
-					</label>
-					<label class="check-button">
-						<input type="radio" id="copyBtn" name="radio">
-						<span class="check-title"><i class="fas fa-copy"></i>Copiar</span>
-					</label>
-					<label class="check-button">
-						<input type="radio" id="pasteBtn" name="radio">
-						<span class="check-title"><i class="fas fa-paste"></i>Colar</span>
-					</label>
+				<div class="row" style="text-align: center;">
+					<button type="button" id="Buttom0" onclick="buttonsAction(Buttons.SELECT)" class="check-button btn btn-outline-primary " data-bs-toggle="button" autocomplete="off"><i class="fas fa-mouse-pointer"></i>Selecionar</button>
+					<button type="button" id="Buttom1" onclick="buttonsAction(Buttons.ADD)" class="check-button btn btn-outline-success" data-bs-toggle="button" autocomplete="off"><i class="fas fa-plus"></i>Criar Mesa</button>
+					<button type="button" id="Buttom2" onclick="buttonsAction(Buttons.EDIT)" class="check-button btn btn-outline-info" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-edit"></i>Editar</button>
+					<button type="button" id="Buttom3" onclick="buttonsAction(Buttons.DELETE)" class="check-button btn btn-outline-danger" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-times-circle"></i>Remover</button>
+					<button type="button" id="Buttom5" onclick="buttonsAction(Buttons.COPY)" class="check-button btn btn-outline-warning" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-copy"></i>Copiar</button>
+					<button type="button" id="Buttom6" onclick="buttonsAction(Buttons.PASTE)" class="check-button btn btn-outline-dark" disabled data-bs-toggle="button" autocomplete="off"><i class="fas fa-paste"></i>Colar</button>
 				</div>
 				<div class="painel">
 					<input type="file" id="bg_image">
@@ -139,6 +121,16 @@
             INTERSECT: "red",
             SAVED: "#78BE78",
 			INATIVE: "#9BA5BE"
+        };
+		var SelectedButon;
+		var Buttons = {
+            SELECT: 0,
+            ADD: 1,
+            EDIT: 2,
+			DELETE: 3,
+			MOVE: 4,
+			COPY: 5,
+			PASTE: 6
         };
 
 		const STEP = 1;
@@ -265,32 +257,45 @@
 
 		canvas.on({
 			'selection:created': function (e) {
-				console.log("Com objeto selecionado");
+				$("#Buttom" + Buttons.COPY).prop("disabled", false);
+				$("#Buttom" + Buttons.DELETE).prop("disabled", false);
+				$("#Buttom" + Buttons.EDIT).prop("disabled", canvas.getActiveObject().type === "activeSelection");
+			},
+			'selection:updated': function (e) {
+				$("#Buttom" + Buttons.EDIT).prop("disabled", canvas.getActiveObject().type === "activeSelection");
 			},
 			'selection:cleared': function (e) {
-				console.log("Sem objeto selecionado");
+				$("#Buttom" + Buttons.COPY).prop("disabled", true);
+				$("#Buttom" + Buttons.DELETE).prop("disabled", true);
+				$("#Buttom" + Buttons.EDIT).prop("disabled", true);
 			},
-			//'after:render': function (e) { console.log("renderizou"); }
+			'mouse:up':function (options) {
+				if(SelectedButon == Buttons.ADD && !create)
+				{
+					drawTable({
+						"Id": 0,
+						"Descricao": "",
+						"X": options.absolutePointer.x - 10,
+						"Y": options.absolutePointer.y - 10,
+						"Color": Color.PENDDING
+					}, true);
+				}
+				create = false;
+			}
 		});
-
+		
 		/*FIM ADIÇÃO DE EVENTOS AO CANVAS*/
 
 		/*INICIO EVENTOS*/
 		//Adiciona o evento double click em todos os elementos do canvas
 		//Abre o formulário para salvar a Mesa
 		window.fabric.util.addListener(canvas.upperCanvasEl, 'dblclick', function (event, self) {
-			if ((canvas.getActiveObject() && canvas.getActiveObject().type == "circle") && !create) {
-				var circle = canvas.getActiveObject();
-				$("#TitleForm").html((circle.get("Id") == 0) ? "Criar Novo Assento" : "Editar Assento");
-				$("#CoordenadaX").val(circle.get("left"));
-				$("#CoordenadaY").val(circle.get("top"));
-				$("#CircleId").val(circle.get("Id"));
-				$("#Descricao").val(circle.get("Descricao"));
-
-				FormTable.show();
-			}
+			if (create) return;
+			onEdit();
 			create = false;
 		});
+
+		
 
 		//criando evento do teclado: Move, Copy, Paste e Delete
 		window.fabric.util.addListener(document.body, 'keydown', function (options) {
@@ -321,10 +326,26 @@
 			}
 		});
 
+		//Abrir o formulário
+		function onEdit(){
+			if ((canvas.getActiveObject() && canvas.getActiveObject().type == "circle")){
+				var circle = canvas.getActiveObject();
+				$("#TitleForm").html((circle.get("Id") == 0) ? "Criar Novo Assento" : "Editar Assento");
+				$("#CoordenadaX").val(circle.get("left"));
+				$("#CoordenadaY").val(circle.get("top"));
+				$("#CircleId").val(circle.get("Id"));
+				$("#Descricao").val(circle.get("Descricao"));
+
+				FormTable.show();
+			}
+		}
+
 		// Deleta a Mesa
 		function onDelete(eventData, transform) {
 			var target = transform.target;
 			var canvas = target.canvas;
+			if(SelectedButon == Buttons.ADD)
+				create = true;
 			deleteTable(canvas);
 		}
 
@@ -353,7 +374,7 @@
 				canvas.renderAll();
 
 				onIntersect(activeObject);
-				editTable(type == "activeSelection");
+				editTable(type === "activeSelection");
 			}
 		}
 
@@ -602,6 +623,7 @@
 				canvas.getActiveObject().clone(function (cloned) {
 					_clipboard = cloned;
 				});
+				$("#Buttom" + Buttons.PASTE).prop("disabled", false);
 			}
 		}
 
@@ -639,6 +661,37 @@
 				canvas.requestRenderAll();
 			});
 		}
+
+		//CONTROLE DE AÇÕES DOS BOTÕES
+		function buttonsAction(action){
+			switch(action) {
+				case Buttons.SELECT:
+					$("#Buttom" + Buttons.SELECT).addClass("active");
+					$("#Buttom" + Buttons.ADD).removeClass("active");
+					SelectedButon = Buttons.SELECT;
+					break;
+				case Buttons.ADD:
+					$("#Buttom" + Buttons.ADD).addClass("active");
+					$("#Buttom" + Buttons.SELECT).removeClass("active");
+					SelectedButon = Buttons.ADD;
+					break;
+				case Buttons.EDIT:
+					onEdit();
+					break;
+				case Buttons.DELETE:
+					deleteTable(canvas);
+					break;
+				case Buttons.COPY:
+					copy();
+					break;
+				case Buttons.PASTE:
+					paste();
+					break;
+				default:
+					// code block
+			} 
+		}
+		buttonsAction(Buttons.SELECT);
 
 		// Evento de upar imagem da planta
 		document.getElementById('bg_image').addEventListener('change', function (e) {
