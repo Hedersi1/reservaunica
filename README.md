@@ -17,6 +17,7 @@ Para rodar o projeto basta abrir as páginas HTML com duplo click em um navegado
 - **BÔNUS**: diversos componentes extras de frontend (visando usabilidade).
 
 ## 🚀 Projetos Futuros
+- Incluir a funcionalidade de desfazer (ctrl + z) e refazer (ctrol + y) ações no processo configuração da planta.
 - Com o plug-in utilizado poderá ainda ser implementado uma interface de criação das plantas na própria ferramenta.
   - Caso o cliente não possua a planta baixa, seria possível um desenho do escritório ou da sala.
 
